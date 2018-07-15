@@ -1,0 +1,36 @@
+language:
+    lang-name: EN-US
+# mob_rep values only take effect after server restart!
+    mob_rep: MobRepellent
+    mob_rep_lore1: Prevents Mobs From
+    mob_rep_lore2: Attacking You When
+    mob_rep_lore3: Held!
+# mob_swo values only take effect after server restart!
+    mob_swo: The Repelling Sword
+    mob_swo_lore1: Prevents Mobs From
+    mob_swo_lore2: Attacking You When
+    mob_swo_lore3: Held!
+    entity_rep_killed_by: killed by entity repeller number
+    no_craft_perm: You dont have permission to craft
+    ff_block_placed: You have placed a forcefield block!
+    ff_destroy_blocked: You have been denied access to destroy this forcefield!
+#Help Files
+    help_next: to read the next page.
+    help_first: to read the first page.
+    help_p1_1: CompleteMobControl Help Page 1
+    help_p1_2: Shows this help page.
+    help_p1_3: Reloads the plugin.
+    help_p1_4: Shows info on giants.
+    help_p1_5: Shows the plugin version.
+    help_p2_1: CompleteMobControl Help Page 2
+    help_p2_2: Creates an entity repeller.
+    help_p2_3: Lists all entity repellers.
+    help_p2_4: Modifies Configuration.
+    help_p2_5: Removes an entity repeller.
+    help_p2_6: Removes all entity repellers.
+    help_p3_1: CompleteMobControl Help Page 3
+    help_p3_2: Toggles forcefield build mode.
+# Repeller Construction
+    rep_const_pl: You have constructed an entity repeller!
+    rep_destr_pl: You have destroyed an entity repeller!
+    red_destr_deny: You have been denied access to destroy this entity repeller!

@@ -1,0 +1,83 @@
+# Copyright (C) 2015 iamkodastorm
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+name: CompleteMobControl
+main: net.highkingdom.cmc.CompleteMobControl
+version: 2.00 B3
+author: iamkodastorm
+description: CMC is a complete mob control option for your server!
+website: http://dev.bukkit.org/server-mods/completemobcontrol/
+commands:
+    cmc:
+        description: General plugin commands.
+        usage: "Usage: /cmc help 1"
+    erepel:
+        description: Entity repeller commands.
+        usage: "Usage: /cmc help 2"
+    ffield:
+        description: Entity forcefield commands.
+        usage: "Usage: /cmc help 3"
+permissions:
+    completemc.reload:
+        description: Allows access to the /cmc reload command.
+        default: op
+    completemc.version:
+        description: Allows access to the /cmc version command.
+        default: op
+    completemc.help:
+        description: Allows access to the /cmc help command.
+        default: op
+    completemc.ercreate:
+        description: Allows a player to build an entity repeller.
+        default: op
+    completemc.erdestroy:
+        description: Allows a player to destroy an entity repeller.
+        default: op
+    completemc.erccreate:
+        description: Allows access to the /erepel create command.
+        default: op
+    completemc.erlist:
+        description: Allows access to the /erepel list command.
+        default: op
+    completemc.erremove:
+        description: Allows access to the /erepel remove command.
+        default: op
+    completemc.erremoveall:
+        description: Allows access to the /erepel removeall command.
+        default: op
+    completemc.ermodify:
+        description: Allows access to the /erepel modify command.
+        default: op
+    completemc.fftoggle:
+        description: Allows access to the /ffield toggle command.
+        default: op
+    completemc.ffremove:
+        description: Allows a player to remove a forcefield.
+        default: op
+    completemc.craft.mobrepellent:
+        description: Allows a player to craft mobrepellent.
+        default: op
+    completemc.craft.therepellingsword:
+        description: Allows a player to craft the repelling sword.
+        default: op
+    completemc.giants.spawn:
+        description: Allows access to the /cmc giant spawn command.
+        default: op
+    completemc.giants.killall:
+        description: Allows access to the /cmc giant killall command.
+        default: op
+    completemc.giants.list:
+        description: Allows access to the /cmc giant list command.
+        default: op
