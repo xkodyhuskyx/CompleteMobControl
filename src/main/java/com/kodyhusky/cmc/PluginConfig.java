@@ -30,12 +30,12 @@ public class PluginConfig {
 
     private void load() {
         mobsToRepel = new HashSet<EntityType>();
-        for (String s : config.getStringList("entity_repeller.advanced.mobs_to_repel")) {
-            EntityType fromName = EntityType.fromName(s);
-            if (fromName != null) {
-                mobsToRepel.add(fromName);
-            } else {
-                plugin.sM(plugin.console, "Unknown entity type " + s + " in mobs_to_repel.", "warn");
+        for (String name : config.getStringList("entity_repeller.advanced.mobs_to_repel")) {
+            try {
+                EntityType type = EntityType.valueOf(name.toUpperCase());
+                mobsToRepel.add(type);
+            } catch (Exception e) {
+                plugin.sM(plugin.console, "Unknown entity type " + name + " in mobs_to_repel.", "warn");
             }
         }
     }
@@ -57,9 +57,15 @@ public class PluginConfig {
     public boolean shouldRepelBelow() {
         return config.getBoolean("entity_repeller.advanced.check_below", true);
     }
-
-    public int getFFid() {
-        return config.getInt("force_field.blockid", 82);
+    
+    // Untested 1.13 Replacement for int getFFid()
+    public Material getFFId() {
+        try {
+            Material block = Material.valueOf(config.getString("force_field.blockid").toUpperCase());
+            return block;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public boolean getDebugMode() {
@@ -213,43 +219,43 @@ public class PluginConfig {
 
     public void checkConfig() {
         if (!plugin.getConfig().contains("entity_repeller.radius.small")) {
-            plugin.getConfig().set("entity_repeller.radius.small", (Object) 25);
+            plugin.getConfig().set("entity_repeller.radius.small", 25);
         }
         if (!plugin.getConfig().contains("entity_repeller.radius.medium")) {
-            plugin.getConfig().set("entity_repeller.radius.medium", (Object) 50);
+            plugin.getConfig().set("entity_repeller.radius.medium", 50);
         }
         if (!plugin.getConfig().contains("entity_repeller.radius.large")) {
-            plugin.getConfig().set("entity_repeller.radius.large", (Object) 75);
+            plugin.getConfig().set("entity_repeller.radius.large", 75);
         }
         if (!plugin.getConfig().contains("entity_repeller.radius.extreme")) {
-            plugin.getConfig().set("entity_repeller.radius.extreme", (Object) 100);
+            plugin.getConfig().set("entity_repeller.radius.extreme", 100);
         }
         if (!plugin.getConfig().contains("entity_repeller.blockid.small")) {
-            plugin.getConfig().set("entity_repeller.blockid.small", (Object) 42);
+            plugin.getConfig().set("entity_repeller.blockid.small", 42);
         }
         if (!plugin.getConfig().contains("entity_repeller.blockid.medium")) {
-            plugin.getConfig().set("entity_repeller.blockid.medium", (Object) 41);
+            plugin.getConfig().set("entity_repeller.blockid.medium", 41);
         }
         if (!plugin.getConfig().contains("entity_repeller.blockid.large")) {
-            plugin.getConfig().set("entity_repeller.blockid.large", (Object) 57);
+            plugin.getConfig().set("entity_repeller.blockid.large", 57);
         }
         if (!plugin.getConfig().contains("entity_repeller.blockid.extreme")) {
-            plugin.getConfig().set("entity_repeller.blockid.extreme", (Object) 133);
+            plugin.getConfig().set("entity_repeller.blockid.extreme", 133);
         }
         if (!plugin.getConfig().contains("entity_repeller.advanced.ignore_below")) {
-            plugin.getConfig().set("entity_repeller.advanced.check_below", (Object) true);
+            plugin.getConfig().set("entity_repeller.advanced.check_below", true);
         }
         if (!plugin.getConfig().contains("entity_repeller.advanced.mobs_to_repel")) {
             plugin.getConfig().createSection("entity_repeller.advanced.mobs_to_repel");
         }
         if (!plugin.getConfig().contains("force_field.blockid")) {
-            plugin.getConfig().set("force_field.blockid", (Object) 82);
+            plugin.getConfig().set("force_field.blockid", 82);
         }
         if (!plugin.getConfig().contains("plugin.debug_mode")) {
-            plugin.getConfig().set("plugin.debug_mode", (Object) false);
+            plugin.getConfig().set("plugin.debug_mode", false);
         }
         if (!plugin.getConfig().contains("plugin.repel_neutral")) {
-            plugin.getConfig().set("plugin.repel_neutral", (Object) false);
+            plugin.getConfig().set("plugin.repel_neutral", false);
         }
         plugin.saveConfig();
     }

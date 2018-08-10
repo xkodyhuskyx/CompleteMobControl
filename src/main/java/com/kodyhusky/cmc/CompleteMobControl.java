@@ -9,24 +9,21 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Dye;
-import org.bukkit.material.MaterialData;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class CompleteMobControl extends JavaPlugin {
@@ -54,8 +51,8 @@ public class CompleteMobControl extends JavaPlugin {
     }
 
     public void onEnable() {
-        console = (CommandSender) getServer().getConsoleSender();
-        DLT = getServer().getScheduler().scheduleSyncDelayedTask((Plugin) this, (Runnable) new DelayLoadRunnable(this));
+        console = getServer().getConsoleSender();
+        DLT = getServer().getScheduler().scheduleSyncDelayedTask(this, new DelayLoadRunnable(this));
     }
 
     public void onDisable() {
@@ -68,18 +65,17 @@ public class CompleteMobControl extends JavaPlugin {
         if (command.getName().equalsIgnoreCase("cmc")) {
             try {
                 if (array[0].equalsIgnoreCase("reload") && array.length == 1) {
-                    if (!commandSender.hasPermission(perm + ".reload") && !isDev(commandSender)) {
+                    if (!commandSender.hasPermission(perm + ".reload")) {
                         sM(commandSender, "You do not have permission to perform this command!", "err");
                         return true;
                     }
                     config.reload();
                     getServer().getScheduler().cancelTask((int) rmode);
-                    rmode = getServer().getScheduler().scheduleSyncRepeatingTask((Plugin) this,
-                            (Runnable) new EntityMoveListener(this), 0L, 50L);
+                    rmode = getServer().getScheduler().scheduleSyncRepeatingTask(this, new EntityMoveListener(this), 0L, 50L);
                     sM(commandSender, "The plugin configuration has been successfully reloaded!", "norm");
                     return true;
                 } else if (array[0].equalsIgnoreCase("version")) {
-                    if (!commandSender.hasPermission(perm + ".reload") && !isDev(commandSender)) {
+                    if (!commandSender.hasPermission(perm + ".reload")) {
                         sM(commandSender, "You do not have permission to perform this command!", "err");
                         return true;
                     }
@@ -93,7 +89,7 @@ public class CompleteMobControl extends JavaPlugin {
                         return true;
                     }
                     if (array[0].equalsIgnoreCase("help")) {
-                        if (!commandSender.hasPermission(perm + ".help") && !isDev(commandSender)) {
+                        if (!commandSender.hasPermission(perm + ".help")) {
                             sM(commandSender, "You do not have permission to perform this command!", "err");
                             return true;
                         }
@@ -122,13 +118,11 @@ public class CompleteMobControl extends JavaPlugin {
                             return true;
                         }
                     }
-                    sM(commandSender, MessageFormat.format("{0}Please use {1}/cmc help 1{0} for command help!",
-                            ChatColor.GOLD, ChatColor.RED), "non");
+                    sM(commandSender, MessageFormat.format("{0}Please use {1}/cmc help 1{0} for command help!", ChatColor.GOLD, ChatColor.RED), "non");
                     return true;
                 }
             } catch (Exception ex2) {
-                sM(commandSender, MessageFormat.format("{0}Please use {1}/cmc help 1{0} for command help!",
-                        ChatColor.GOLD, ChatColor.RED), "non");
+                sM(commandSender, MessageFormat.format("{0}Please use {1}/cmc help 1{0} for command help!", ChatColor.GOLD, ChatColor.RED), "non");
                 return true;
             }
         }
@@ -139,7 +133,7 @@ public class CompleteMobControl extends JavaPlugin {
                         sM(commandSender, "This command can only be run in-game!", "err");
                         return true;
                     }
-                    if (!commandSender.hasPermission(perm + ".erccreate") && !isDev(commandSender)) {
+                    if (!commandSender.hasPermission(perm + ".erccreate")) {
                         sM(commandSender, "You do not have permission to perform this command!", "err");
                         return true;
                     }
@@ -203,7 +197,7 @@ public class CompleteMobControl extends JavaPlugin {
                     }
                 }
                 if (array[0].equalsIgnoreCase("list")) {
-                    if (!commandSender.hasPermission(perm + ".erlist") && !isDev(commandSender)) {
+                    if (!commandSender.hasPermission(perm + ".erlist")) {
                         sM(commandSender, "You do not have permission to perform this command!", "err");
                         return true;
                     }
@@ -227,7 +221,7 @@ public class CompleteMobControl extends JavaPlugin {
                     }
                     return true;
                 } else if (array[0].equalsIgnoreCase("remove") && array.length == 1) {
-                    if (!commandSender.hasPermission(perm + ".erremove") && !isDev(commandSender)) {
+                    if (!commandSender.hasPermission(perm + ".erremove")) {
                         sM(commandSender, "You do not have permission to perform this command!", "err");
                         return true;
                     }
@@ -267,7 +261,7 @@ public class CompleteMobControl extends JavaPlugin {
                     sM(commandSender, "There was an error removing the specified entity repeller!", "err");
                     return true;
                 } else if (array[0].equalsIgnoreCase("removeall")) {
-                    if (!commandSender.hasPermission(perm + ".erremoveall") && !isDev(commandSender)) {
+                    if (!commandSender.hasPermission(perm + ".erremoveall")) {
                         sM(commandSender, "You do not have permission to perform this command!", "err");
                         return true;
                     }
@@ -284,7 +278,7 @@ public class CompleteMobControl extends JavaPlugin {
                                 ChatColor.GOLD, ChatColor.RED), "non");
                         return true;
                     }
-                    if (!commandSender.hasPermission(perm + ".ermodify") && !isDev(commandSender)) {
+                    if (!commandSender.hasPermission(perm + ".ermodify")) {
                         sM(commandSender, "You do not have permission to perform this command!", "err");
                         return true;
                     }
@@ -296,8 +290,8 @@ public class CompleteMobControl extends JavaPlugin {
                             s4 = "entity_repeller.radius.";
                             break;
                         }
-                        case "blockid": {
-                            s4 = "entity_repeller.blockid.";
+                        case "material": {
+                            s4 = "entity_repeller.material.";
                             break;
                         }
                         }
@@ -305,7 +299,7 @@ public class CompleteMobControl extends JavaPlugin {
                             sM(commandSender, "The specified node could not be found!", "err");
                             return true;
                         }
-                        if ("radius".equalsIgnoreCase(array[1]) || "blockid".equalsIgnoreCase(array[1])) {
+                        if ("radius".equalsIgnoreCase(array[1]) || "material".equalsIgnoreCase(array[1])) {
                             String lowerCase2 = array[2].toLowerCase();
                             String s6 = null;
                             switch (lowerCase2) {
@@ -333,7 +327,7 @@ public class CompleteMobControl extends JavaPlugin {
                             if ("null".equals(s6)) {
                                 sM(commandSender, "The specified size could not be found!", "err");
                             } else {
-                                getConfig().set(s4 + array[2].toLowerCase(), (Object) array[3]);
+                                getConfig().set(s4 + array[2].toLowerCase(), array[3]);
                                 saveConfig();
                                 config.reload();
                                 sM(commandSender, "Configuration value successfully changed!", "norm");
@@ -341,10 +335,10 @@ public class CompleteMobControl extends JavaPlugin {
                             return true;
                         }
                     } catch (NumberFormatException ex6) {
-                        sM(commandSender, "Usage: /erepel modify [blockid/radius] [size] [datavalue]", "err");
+                        sM(commandSender, "Usage: /erepel modify [material/radius] [size] [datavalue]", "err");
                         return true;
                     }
-                    sM(commandSender, "Usage: /erepel modify [blockid/radius] [size] [datavalue]", "err");
+                    sM(commandSender, "Usage: /erepel modify [material/radius] [size] [datavalue]", "err");
                     return true;
                 }
             } catch (Exception ex7) {
@@ -359,7 +353,7 @@ public class CompleteMobControl extends JavaPlugin {
                     sM(commandSender, "An unspecified error has occurred!", "err");
                     return true;
                 }
-                if (!commandSender.hasPermission(perm + ".fftoggle") && !isDev(commandSender)) {
+                if (!commandSender.hasPermission(perm + ".fftoggle")) {
                     sM(commandSender, "You do not have permission to perform this command!", "err");
                     return true;
                 }
@@ -397,30 +391,27 @@ public class CompleteMobControl extends JavaPlugin {
         getWorlds();
         repellers = new RepellerList("plugins/CompleteMobControl/", this);
         blockl = new RepellerBlockListener(this);
-        getServer().getPluginManager().registerEvents((Listener) new EntitySpawnListener(this), (Plugin) this);
-        getServer().getPluginManager().registerEvents((Listener) blockl, (Plugin) this);
+        getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
+        getServer().getPluginManager().registerEvents(blockl, this);
         help = new PluginHelp(this);
-        rmode = getServer().getScheduler().scheduleSyncRepeatingTask((Plugin) this,
-                (Runnable) new EntityMoveListener(this), 0L, 75L);
-        getServer().getPluginManager().registerEvents((Listener) new FFieldBlockListener(this), (Plugin) this);
-        getServer().getScheduler().scheduleSyncRepeatingTask((Plugin) this, (Runnable) new FFieldMoveListener(this), 0L,
-                50L);
+        rmode = getServer().getScheduler().scheduleSyncRepeatingTask(this, new EntityMoveListener(this), 0L, 80L);
+        getServer().getPluginManager().registerEvents(new FFieldBlockListener(this), this);
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, new FFieldMoveListener(this), 0L, 50L);
         ArrayList<String> lore = new ArrayList<String>();
         lore.add(getLang().get("mob_rep_lore1"));
         lore.add(getLang().get("mob_rep_lore2"));
         lore.add(getLang().get("mob_rep_lore3"));
         Dye dye = new Dye();
-        dye.setData((byte) new Byte("1"));
+        dye.setColor(DyeColor.RED);
         ItemStack itemStack = new ItemStack(Material.DEAD_BUSH);
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.setDisplayName(getLang().get("mob_rep"));
-        itemMeta.setLore((List) lore);
+        itemMeta.setLore(lore);
         itemStack.setItemMeta(itemMeta);
-        ShapedRecipe shapedRecipe = new ShapedRecipe(itemStack);
+        ShapedRecipe shapedRecipe = new ShapedRecipe(new NamespacedKey(this, "mobrepellent"), itemStack);
         shapedRecipe.shape(new String[] { "rir", "bdb", "rir" });
-        shapedRecipe.setIngredient('r', (MaterialData) dye).setIngredient('i', Material.IRON_BLOCK)
-                .setIngredient('b', Material.BONE).setIngredient('d', Material.DEAD_BUSH);
-        getServer().addRecipe((Recipe) shapedRecipe);
+        shapedRecipe.setIngredient('r', dye).setIngredient('i', Material.IRON_BLOCK).setIngredient('b', Material.BONE).setIngredient('d', Material.DEAD_BUSH);
+        getServer().addRecipe(shapedRecipe);
         ItemStack itemStack2 = new ItemStack(Material.DIAMOND_SWORD);
         ItemMeta itemMeta2 = itemStack2.getItemMeta();
         itemMeta2.setDisplayName(getLang().get("mob_swo"));
@@ -428,14 +419,12 @@ public class CompleteMobControl extends JavaPlugin {
         lore2.add(getLang().get("mob_swo_lore1"));
         lore2.add(getLang().get("mob_swo_lore2"));
         lore2.add(getLang().get("mob_swo_lore3"));
-        itemMeta2.setLore((List) lore2);
+        itemMeta2.setLore(lore2);
         itemStack2.setItemMeta(itemMeta2);
-        ShapedRecipe shapedRecipe2 = new ShapedRecipe(itemStack2);
+        ShapedRecipe shapedRecipe2 = new ShapedRecipe(new NamespacedKey(this, "repelling_sword"), itemStack2);
         shapedRecipe2.shape(new String[] { "rdr", "bdb", "rfr" });
-        shapedRecipe2.setIngredient('r', (MaterialData) dye).setIngredient('r', (MaterialData) dye)
-                .setIngredient('d', Material.DIAMOND_BLOCK).setIngredient('b', Material.BONE)
-                .setIngredient('f', Material.DEAD_BUSH);
-        getServer().addRecipe((Recipe) shapedRecipe2);
+        shapedRecipe2.setIngredient('r', dye).setIngredient('d', Material.DIAMOND_BLOCK).setIngredient('b', Material.BONE).setIngredient('f', Material.DEAD_BUSH);
+        getServer().addRecipe(shapedRecipe2);
     }
 
     public RepellerList getCMClist() {
