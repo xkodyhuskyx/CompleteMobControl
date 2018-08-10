@@ -267,16 +267,14 @@ public class PluginConfig {
 
     // Check For New 1.13 Tamable Entities
     public boolean isEntityTame(Entity entity) {
-        return (entity.getType() == EntityType.HORSE && ((AbstractHorse) entity).isTamed()
-                || entity.getType() == EntityType.HORSE && ((ChestedHorse) entity).isTamed()
-                || entity.getType() == EntityType.DONKEY && ((Donkey) entity).isTamed()
+        return (entity.getType() == EntityType.DONKEY && ((Donkey) entity).isTamed()
                 || entity.getType() == EntityType.HORSE && ((Horse) entity).isTamed()
                 || entity.getType() == EntityType.LLAMA && ((Llama) entity).isTamed()
                 || entity.getType() == EntityType.MULE && ((Mule) entity).isTamed()
                 || entity.getType() == EntityType.OCELOT && ((Ocelot) entity).isTamed()
                 || entity.getType() == EntityType.PARROT && ((Parrot) entity).isTamed()
-                || entity.getType() == EntityType.HORSE && ((SkeletonHorse) entity).isTamed()
+                || entity.getType() == EntityType.SKELETON_HORSE && ((SkeletonHorse) entity).isTamed()
                 || entity.getType() == EntityType.WOLF && ((Wolf) entity).isTamed()
-                || entity.getType() == EntityType.HORSE && ((ZombieHorse) entity).isTamed());
+                || entity.getType() == EntityType.ZOMBIE_HORSE && ((ZombieHorse) entity).isTamed());
     }
 }
