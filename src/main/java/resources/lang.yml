@@ -14,7 +14,7 @@ language:
     no_craft_perm: You dont have permission to craft
     ff_block_placed: You have placed a forcefield block!
     ff_destroy_blocked: You have been denied access to destroy this forcefield!
-#Help Files
+# Help Files
     help_next: to read the next page.
     help_first: to read the first page.
     help_p1_1: CompleteMobControl Help Page 1

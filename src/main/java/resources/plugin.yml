@@ -1,4 +1,4 @@
-# Copyright (C) 2015 iamkodastorm
+# Copyright (C) 2015-2018 Jeffery Hancock
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,9 +14,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 name: CompleteMobControl
-main: net.highkingdom.cmc.CompleteMobControl
-version: 2.00 B3
-author: iamkodastorm
+main: com.kodyhusky.cmc.CompleteMobControl
+version: 2.02 B1
+author: kodyhusky
 description: CMC is a complete mob control option for your server!
 website: http://dev.bukkit.org/server-mods/completemobcontrol/
 commands:

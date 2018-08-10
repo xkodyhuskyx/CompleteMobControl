@@ -1,23 +1,23 @@
-package net.highkingdom.cmc;
+package com.kodyhusky.cmc;
 
-import org.bukkit.block.Block;
-import org.bukkit.World;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 
-public class RepellerStructure
-{
+public class RepellerStructure {
+
     private int x;
     private int y;
     private int z;
     private Material material;
     private World world;
     private int data;
-    
-    public RepellerStructure(final Block block) {
+
+    public RepellerStructure(Block block) {
         this(block.getX(), block.getY(), block.getZ(), block.getWorld(), block.getType(), block.getData());
     }
-    
-    public RepellerStructure(final int x, final int y, final int z, final World world, final Material material, final int data) {
+
+    public RepellerStructure(int x, int y, int z, World world, Material material, int data) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -25,33 +25,33 @@ public class RepellerStructure
         this.material = material;
         this.data = data;
     }
-    
+
     public int getX() {
-        return this.x;
+        return x;
     }
-    
+
     public int getY() {
-        return this.y;
+        return y;
     }
-    
+
     public int getZ() {
-        return this.z;
+        return z;
     }
-    
+
     public Material getMaterial() {
-        return this.material;
+        return material;
     }
-    
+
     public World getWorld() {
-        return this.world;
+        return world;
     }
-    
+
     public int getBlockData() {
-        return this.data;
+        return data;
     }
-    
+
     @Override
     public String toString() {
-        return this.x + "," + this.y + "," + this.z + "," + this.world.getUID();
+        return x + "," + y + "," + z + "," + world.getUID();
     }
 }

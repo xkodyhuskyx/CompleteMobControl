@@ -1,58 +1,59 @@
-package net.highkingdom.cmc;
+package com.kodyhusky.cmc;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.World;
 
-public class EntityMoveListener implements Runnable
-{
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+
+public class EntityMoveListener implements Runnable {
+    
     CompleteMobControl plugin;
     
-    public EntityMoveListener(final CompleteMobControl plugin) {
+    public EntityMoveListener(CompleteMobControl plugin) {
         this.plugin = plugin;
-        this.run();
+        run();
     }
     
     @Override
-    public final void run() {
-        final Iterator<World> iterator = this.plugin.getWorlds().iterator();
+    public void run() {
+        Iterator<World> iterator = plugin.getWorlds().iterator();
         while (iterator.hasNext()) {
-            for (final LivingEntity livingEntity : iterator.next().getLivingEntities()) {
+            for (LivingEntity livingEntity : iterator.next().getLivingEntities()) {
                 Integer n = 1;
-                if (this.plugin.config.isNeutralEntity((Entity)livingEntity) && !this.plugin.config.shouldRepelNeutralMobs()) {
+                if (plugin.config.isNeutralEntity((Entity)livingEntity) && !plugin.config.shouldRepelNeutralMobs()) {
                     n = 0;
                 }
-                if (this.plugin.config.isInvalidEntity((Entity)livingEntity)) {
+                if (plugin.config.isInvalidEntity((Entity)livingEntity)) {
                     n = 0;
                 }
                 if (n == 1) {
                     if (livingEntity.isLeashed()) {
                         n = 0;
                     }
-                    if (this.plugin.config.isEntityTame((Entity)livingEntity)) {
+                    if (plugin.config.isEntityTame((Entity)livingEntity)) {
                         n = 0;
                     }
                     if (n != 1 || livingEntity.getType() == EntityType.PLAYER) {
                         continue;
                     }
-                    final HashSet<EntityType> mobsToRepel = this.plugin.config.getMobsToRepel();
+                    HashSet<EntityType> mobsToRepel = plugin.config.getMobsToRepel();
                     if (!mobsToRepel.isEmpty() && !mobsToRepel.contains(livingEntity.getType())) {
                         n = 0;
                     }
-                    if (n != 1 || !this.plugin.getCMClist().isRepelled(livingEntity.getLocation())) {
+                    if (n != 1 || !plugin.getCMClist().isRepelled(livingEntity.getLocation())) {
                         continue;
                     }
                     if (livingEntity.getFireTicks() <= 0 || livingEntity.getHealth() > 1.0) {
                         livingEntity.setHealth(1.0);
                         livingEntity.setFireTicks(30000);
                     }
-                    if (!this.plugin.config.getDebugMode()) {
+                    if (!plugin.config.getDebugMode()) {
                         continue;
                     }
-                    this.plugin.sM(this.plugin.console, livingEntity.getType().name() + " " + this.plugin.getLang().get("entity_rep_killed_by") + " " + this.plugin.getCMClist().getRepelledBaseId(livingEntity.getLocation()), "deb");
+                    plugin.sM(plugin.console, livingEntity.getType().name() + " " + plugin.getLang().get("entity_rep_killed_by") + " " + plugin.getCMClist().getRepelledBaseId(livingEntity.getLocation()), "deb");
                 }
             }
         }
