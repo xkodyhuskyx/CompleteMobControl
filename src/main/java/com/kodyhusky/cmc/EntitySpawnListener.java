@@ -28,12 +28,14 @@ public class EntitySpawnListener implements Listener {
         if (entityTargetEvent.getTarget() instanceof Player) {
             try {
                 Player player = (Player) entityTargetEvent.getTarget();
-                if (player.getItemInHand().getItemMeta().getLore()
-                        .contains(plugin.getLang().get("mob_rep_lore1"))) {
-                    entityTargetEvent.setCancelled(true);
-                }
-                if (player.getItemInHand().getItemMeta().getLore()
-                        .contains(plugin.getLang().get("mob_swo_lore1"))) {
+                if (player.getInventory().getItemInMainHand().getItemMeta().getLore()
+                        .contains(plugin.getLang().get("mob_rep_lore1"))
+                        || player.getInventory().getItemInMainHand().getItemMeta().getLore()
+                                .contains(plugin.getLang().get("mob_swo_lore1"))
+                        || player.getInventory().getItemInOffHand().getItemMeta().getLore()
+                                .contains(plugin.getLang().get("mob_rep_lore1"))
+                        || player.getInventory().getItemInOffHand().getItemMeta().getLore()
+                                .contains(plugin.getLang().get("mob_swo_lore1"))) {
                     entityTargetEvent.setCancelled(true);
                 }
             } catch (Exception ex) {
@@ -44,8 +46,8 @@ public class EntitySpawnListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onCraft(PrepareItemCraftEvent prepareItemCraftEvent) {
         if (prepareItemCraftEvent.getRecipe().getResult().hasItemMeta()) {
-            String replace = prepareItemCraftEvent.getRecipe().getResult().getItemMeta().getDisplayName()
-                    .toLowerCase().replace(" ", "");
+            String replace = prepareItemCraftEvent.getRecipe().getResult().getItemMeta().getDisplayName().toLowerCase()
+                    .replace(" ", "");
             if ((prepareItemCraftEvent.getRecipe().getResult().getItemMeta().getDisplayName().toLowerCase()
                     .equals(plugin.getLang().get("mob_rep").toLowerCase())
                     || prepareItemCraftEvent.getRecipe().getResult().getItemMeta().getDisplayName().toLowerCase()
@@ -54,7 +56,8 @@ public class EntitySpawnListener implements Listener {
                 prepareItemCraftEvent.getInventory().setResult((ItemStack) null);
                 plugin.sM((CommandSender) prepareItemCraftEvent.getView().getPlayer(),
                         plugin.getLang().get("no_craft_perm") + " " + prepareItemCraftEvent.getRecipe().getResult()
-                                .getItemMeta().getDisplayName().toLowerCase() + "!", "err");
+                                .getItemMeta().getDisplayName().toLowerCase() + "!",
+                        "err");
             }
         }
     }
@@ -78,9 +81,8 @@ public class EntitySpawnListener implements Listener {
         if (plugin.getCMClist().isRepelled(creatureSpawnEvent.getLocation())) {
             if (plugin.config.getDebugMode()) {
                 plugin.sM(plugin.console,
-                        creatureSpawnEvent.getEntityType().name() + " "
-                                + plugin.getLang().get("entity_rep_killed_by") + " "
-                                + plugin.getCMClist().getRepelledBaseId(creatureSpawnEvent.getLocation()),
+                        creatureSpawnEvent.getEntityType().name() + " " + plugin.getLang().get("entity_rep_killed_by")
+                                + " " + plugin.getCMClist().getRepelledBaseId(creatureSpawnEvent.getLocation()),
                         "deb");
             }
             creatureSpawnEvent.setCancelled(true);
