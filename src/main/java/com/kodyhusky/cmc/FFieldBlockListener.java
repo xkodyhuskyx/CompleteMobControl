@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.bukkit.Effect;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -18,7 +20,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class FFieldBlockListener implements Listener {
     
-    public static CompleteMobControl plugin;
+    private static CompleteMobControl plugin;
     List<String> blocks;
 
     public FFieldBlockListener(CompleteMobControl plugin) {
@@ -32,7 +34,7 @@ public class FFieldBlockListener implements Listener {
         Block block = blockPlaceEvent.getBlock();
         String string = block.getWorld().getName() + "," + block.getX() + "," + block.getY() + "," + block.getZ()
                 + ",";
-        if (block.getTypeId() == plugin.config.getFFid()
+        if (block.getType() == plugin.config.getFFId()
                 && plugin.Toggler.containsKey(player.getName())) {
             blocks = Blocks.load("ffblocks.yml");
             if (!blocks.contains(string)) {
@@ -42,6 +44,7 @@ public class FFieldBlockListener implements Listener {
                 Blocks.save("ffblocks.yml", blocks);
             }
             if (!blockPlaceEvent.isCancelled()) {
+                // Needs Replacement - Unable To Find Replacement
                 player.playEffect(player.getLocation(), Effect.CLICK1, 200);
             }
         }
@@ -56,9 +59,7 @@ public class FFieldBlockListener implements Listener {
         if (blockBreakEvent.isCancelled()) {
             return;
         }
-        if (block.getTypeId() == plugin.config.getFFid()
-                && CompleteMobControl.Properties.Exist("ffblocks.yml")
-                && !plugin.isDev((CommandSender) blockBreakEvent.getPlayer())) {
+        if (block.getType() == plugin.config.getFFId() && CompleteMobControl.Properties.Exist("ffblocks.yml")) {
             blocks = Blocks.load("ffblocks.yml");
             if (!blockBreakEvent.getPlayer().hasPermission("completemc.ffremove")) {
                 plugin.sM((CommandSender) player,
@@ -67,9 +68,8 @@ public class FFieldBlockListener implements Listener {
                 return;
             }
             if (blocks.contains(string)) {
-                block.getWorld().dropItem(block.getLocation(),
-                        new ItemStack(plugin.config.getFFid(), 1));
-                block.setTypeId(0);
+                block.getWorld().dropItem(block.getLocation(), new ItemStack(plugin.config.getFFId(), 1));
+                block.setType(Material.AIR);
                 blocks.remove(string);
                 Blocks.save("ffblocks.yml", blocks);
             }
@@ -82,7 +82,7 @@ public class FFieldBlockListener implements Listener {
     public void onEntityExplode(EntityExplodeEvent entityExplodeEvent) {
         if (!entityExplodeEvent.isCancelled()) {
             for (Block block : entityExplodeEvent.blockList()) {
-                if (block.getTypeId() == plugin.config.getFFid()
+                if (block.getType() == plugin.config.getFFId()
                         && CompleteMobControl.Properties.Exist("ffblocks.yml")) {
                     blocks = Blocks.load("ffblocks.yml");
                     String string = block.getWorld().getName() + "," + block.getX() + "," + block.getY() + ","
@@ -91,8 +91,8 @@ public class FFieldBlockListener implements Listener {
                         continue;
                     }
                     block.getWorld().dropItem(block.getLocation(),
-                            new ItemStack(plugin.config.getFFid(), 1));
-                    block.setTypeId(0);
+                            new ItemStack(plugin.config.getFFId(), 1));
+                    block.setType(Material.AIR);
                     blocks.remove(string);
                     Blocks.save("ffblocks.yml", blocks);
                 }
@@ -115,9 +115,9 @@ public class FFieldBlockListener implements Listener {
         return list.toArray(new Block[list.size()]);
     }
 
-    public static Block getBlockAroundLocation(Location location, int n, int n2) {
+    public static Block getBlockAroundLocation(Location location, int n, Material n2) {
         for (Block block : getBlocksAroundLocation(location, n, true)) {
-            if (block.getTypeId() == n2) {
+            if (block.getType() == n2) {
                 return block;
             }
         }
@@ -142,8 +142,7 @@ public class FFieldBlockListener implements Listener {
                         } catch (NumberFormatException ex) {
                         }
                         World world = plugin.getServer().getWorld(s3);
-                        if (world != null && world.getBlockTypeIdAt(int1, int2,
-                                int3) == plugin.config.getFFid()) {
+                        if (world != null && world.getBlockAt(int1, int2, int3).getType() == plugin.config.getFFId()) {
                             list.add(s2);
                         }
                     } catch (Exception ex2) {
@@ -169,8 +168,7 @@ public class FFieldBlockListener implements Listener {
                     } catch (NumberFormatException ex) {
                     }
                     World world = plugin.getServer().getWorld(s3);
-                    if (world == null || world.getBlockTypeIdAt(int1, int2, int3) != plugin.config
-                            .getFFid()) {
+                    if (world == null || world.getBlockAt(int1, int2, int3).getType() != plugin.config.getFFId()) {
                         continue;
                     }
                     list2.add(s2);

@@ -61,7 +61,7 @@ public class PluginConfig {
     // Untested 1.13 Replacement for int getFFid()
     public Material getFFId() {
         try {
-            Material block = Material.valueOf(config.getString("force_field.blockid").toUpperCase());
+            Material block = Material.valueOf(config.getString("force_field.material").toUpperCase());
             return block;
         } catch (Exception e) {
             return null;
@@ -93,124 +93,89 @@ public class PluginConfig {
     }
 
     public int getRadius(RepellerStructure repellerStructure) {
-        return getRadius(repellerStructure.getMaterial(), repellerStructure.getBlockData());
+        return getRadius(repellerStructure.getMaterial());
     }
 
     public int getRadius(Block block) {
-        return getRadius(block.getType(), block.getData());
+        return getRadius(block.getType());
     }
 
-    public int getRadius(Material material, int n) {
-        if ((material == getBlockType("small") && getBlockDamage("small") == -1)
-                || n == getBlockDamage("small")) {
+    public int getRadius(Material material) {
+        if (material == getBlockType("small")) {
             return config.getInt("entity_repeller.radius.small", 25);
         }
-        if ((material == getBlockType("medium") && getBlockDamage("medium") == -1)
-                || n == getBlockDamage("medium")) {
+        if (material == getBlockType("medium")) {
             return config.getInt("entity_repeller.radius.medium", 50);
         }
-        if ((material == getBlockType("large") && getBlockDamage("large") == -1)
-                || n == getBlockDamage("large")) {
+        if (material == getBlockType("large")) {
             return config.getInt("entity_repeller.radius.large", 75);
         }
-        if ((material == getBlockType("extreme") && getBlockDamage("extreme") == -1)
-                || n == getBlockDamage("extreme")) {
+        if (material == getBlockType("extreme")) {
             return config.getInt("entity_repeller.radius.extreme", 100);
         }
         return -1;
     }
 
-    private int[] getItemType(String s, int n) {
-        String[] split = config.getString(s, "").split("@");
-        int[] array = { n, -1 };
+    private Material getItemType(String path, Material defaultmat) {
         try {
-            array[0] = Integer.parseInt(split[0]);
-            if (split.length > 1) {
-                array[1] = Integer.parseInt(split[1]);
+            String name = config.getString("path");
+            Material mat = Material.getMaterial(name.toUpperCase());
+            return mat;
+        } catch (Exception e) {
+            plugin.sM(plugin.console, "Error loading item type for " + path + ". Will default to " + defaultmat.name() + ".", "deb");
+            return defaultmat;
+        }
+    }
+
+    public Material getBlockType(String name) {
+        Material type;
+        switch (name) {
+            case "small": {
+                type = getItemType("entity_repeller.material.small", Material.IRON_BLOCK);
+                break;
             }
-        } catch (NumberFormatException ex) {
-            plugin.sM(plugin.console, "Error loading item type for " + s + ". Will default to " + n + ".",
-                    "deb");
+            case "medium": {
+                type = getItemType("entity_repeller.material.medium", Material.GOLD_BLOCK);
+                break;
+            }
+            case "large": {
+                type = getItemType("entity_repeller.material.large", Material.DIAMOND_BLOCK);
+                break;
+            }
+            case "extreme": {
+                type = getItemType("entity_repeller.material.extreme", Material.EMERALD_BLOCK);
+                break;
+            }
+            default: {
+                type = Material.DIAMOND_BLOCK;
+                break;
+            }
         }
-        return array;
+        return type;
     }
 
-    public Material getBlockType(String s) {
-        int n2 = 0;
-        switch (s) {
-        case "small": {
-            n2 = getItemType("entity_repeller.blockid.small", 42)[0];
-            break;
+    // Entire Function Needs To Be Rewritten
+    public Material getBlockDamage(String type) {
+        Material mat = null;
+        switch (type) {
+            case "small": {
+                mat = getItemType("entity_repeller.blockid.small", Material.IRON_BLOCK);
+                break;
+            }
+            case "medium": {
+                mat = getItemType("entity_repeller.blockid.medium", Material.GOLD_BLOCK);
+                break;
+            }
+            case "large": {
+                mat = getItemType("entity_repeller.blockid.large", Material.DIAMOND_BLOCK);
+                break;
+            }
+            case "extreme": {
+                mat = getItemType("entity_repeller.blockid.extreme", Material.EMERALD_BLOCK);
+                break;
+            }
         }
-        case "medium": {
-            n2 = getItemType("entity_repeller.blockid.medium", 41)[0];
-            break;
-        }
-        case "large": {
-            n2 = getItemType("entity_repeller.blockid.large", 57)[0];
-            break;
-        }
-        case "extreme": {
-            n2 = getItemType("entity_repeller.blockid.extreme", 133)[0];
-            break;
-        }
-        default: {
-            n2 = 57;
-            break;
-        }
-        }
-        Material material = Material.getMaterial(n2);
-        switch (n2) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 7:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 24:
-        case 78:
-        case 79:
-        case 82:
-        case 87:
-        case 88:
-        case 110:
-        case 121: {
-            material = Material.DIAMOND_BLOCK;
-            break;
-        }
-        }
-        if (material != null) {
-            return material;
-        }
-        return Material.DIAMOND_BLOCK;
-    }
-
-    public int getBlockDamage(String s) {
-        int n = -1;
-        switch (s) {
-        case "small": {
-            n = getItemType("entity_repeller.blockid.small", 42)[1];
-            break;
-        }
-        case "medium": {
-            n = getItemType("entity_repeller.blockid.medium", 41)[1];
-            break;
-        }
-        case "large": {
-            n = getItemType("entity_repeller.blockid.large", 57)[1];
-            break;
-        }
-        case "extreme": {
-            n = getItemType("entity_repeller.blockid.extreme", 133)[1];
-            break;
-        }
-        }
-        return n;
+        return mat;
     }
 
     public HashSet<EntityType> getMobsToRepel() {
@@ -230,17 +195,17 @@ public class PluginConfig {
         if (!plugin.getConfig().contains("entity_repeller.radius.extreme")) {
             plugin.getConfig().set("entity_repeller.radius.extreme", 100);
         }
-        if (!plugin.getConfig().contains("entity_repeller.blockid.small")) {
-            plugin.getConfig().set("entity_repeller.blockid.small", 42);
+        if (!plugin.getConfig().contains("entity_repeller.material.small")) {
+            plugin.getConfig().set("entity_repeller.material.small", "IRON_BLOCK");
         }
-        if (!plugin.getConfig().contains("entity_repeller.blockid.medium")) {
-            plugin.getConfig().set("entity_repeller.blockid.medium", 41);
+        if (!plugin.getConfig().contains("entity_repeller.material.medium")) {
+            plugin.getConfig().set("entity_repeller.material.medium", "GOLD_BLOCK");
         }
-        if (!plugin.getConfig().contains("entity_repeller.blockid.large")) {
-            plugin.getConfig().set("entity_repeller.blockid.large", 57);
+        if (!plugin.getConfig().contains("entity_repeller.material.large")) {
+            plugin.getConfig().set("entity_repeller.material.large", "DIAMOND_BLOCK");
         }
-        if (!plugin.getConfig().contains("entity_repeller.blockid.extreme")) {
-            plugin.getConfig().set("entity_repeller.blockid.extreme", 133);
+        if (!plugin.getConfig().contains("entity_repeller.material.extreme")) {
+            plugin.getConfig().set("entity_repeller.material.extreme", "EMERALD_BLOCK");
         }
         if (!plugin.getConfig().contains("entity_repeller.advanced.ignore_below")) {
             plugin.getConfig().set("entity_repeller.advanced.check_below", true);
@@ -248,8 +213,8 @@ public class PluginConfig {
         if (!plugin.getConfig().contains("entity_repeller.advanced.mobs_to_repel")) {
             plugin.getConfig().createSection("entity_repeller.advanced.mobs_to_repel");
         }
-        if (!plugin.getConfig().contains("force_field.blockid")) {
-            plugin.getConfig().set("force_field.blockid", 82);
+        if (!plugin.getConfig().contains("force_field.material")) {
+            plugin.getConfig().set("force_field.material", "CLAY");
         }
         if (!plugin.getConfig().contains("plugin.debug_mode")) {
             plugin.getConfig().set("plugin.debug_mode", false);
@@ -260,6 +225,7 @@ public class PluginConfig {
         plugin.saveConfig();
     }
 
+    // Add 1.13 Neutral Entities
     public boolean isNeutralEntity(Entity entity) {
         return entity.getType() == EntityType.COW || entity.getType() == EntityType.SHEEP
                 || entity.getType() == EntityType.WOLF || entity.getType() == EntityType.VILLAGER
@@ -267,9 +233,10 @@ public class PluginConfig {
                 || entity.getType() == EntityType.SQUID || entity.getType() == EntityType.PIG
                 || entity.getType() == EntityType.SNOWMAN || entity.getType() == EntityType.MUSHROOM_COW
                 || entity.getType() == EntityType.RABBIT || entity.getType() == EntityType.CHICKEN
-                || entity.getType() == EntityType.HORSE;
+                || entity.getType() == EntityType.HORSE || entity.getType() == EntityType.DOLPHIN;
     }
 
+    // Check For New 1.13 Invalid Entities
     public boolean isInvalidEntity(Entity entity) {
         return entity.getType() == EntityType.ARMOR_STAND || entity.getType() == EntityType.ARROW
                 || entity.getType() == EntityType.DROPPED_ITEM || entity.getType() == EntityType.BOAT
@@ -288,6 +255,7 @@ public class PluginConfig {
                 || entity.getType() == EntityType.FISHING_HOOK || entity.getType() == EntityType.ITEM_FRAME;
     }
 
+    // Check For New 1.13 Tamable Entities
     public boolean isEntityTame(Entity entity) {
         return (entity.getType() == EntityType.WOLF && ((Wolf) entity).isTamed())
                 || (entity.getType() == EntityType.OCELOT && ((Ocelot) entity).isTamed())

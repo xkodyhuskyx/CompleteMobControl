@@ -40,20 +40,20 @@ public class FFieldMoveListener implements Runnable {
                     Block block = null;
                     for (int i = location.getBlockY(); i >= 0; --i) {
                         block = livingEntity.getWorld().getBlockAt(location.getBlockX(), i - 1, location.getBlockZ());
-                        if (block.getTypeId() == plugin.config.getFFid()) {
+                        if (block.getType() == plugin.config.getFFId()) {
                             break;
                         }
                         if (i >= 0) {
                             for (int j = location.getBlockY(); j <= 256; ++j) {
                                 block = livingEntity.getWorld().getBlockAt(location.getBlockX(), j + 1,
                                         location.getBlockZ());
-                                if (block.getTypeId() == plugin.config.getFFid()) {
+                                if (block.getType() == plugin.config.getFFId()) {
                                     break;
                                 }
                             }
                         }
                     }
-                    if (block.getTypeId() != plugin.config.getFFid() || block.getBlockPower() <= 0
+                    if (block.getType() != plugin.config.getFFId() || block.getBlockPower() <= 0
                             || (livingEntity.getFireTicks() > 0 && livingEntity.getHealth() <= 1.0)) {
                         continue;
                     }

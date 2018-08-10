@@ -46,9 +46,8 @@ public class RepellerBlockListener implements Listener {
         if (plugin.config.getRadius(block) != -1) {
             for (Block block2 : getAdjacentRepellerBlocks(block)) {
                 if (!plugin.getCMClist().contains(block2)) {
-                    if (!player.hasPermission(plugin.perm + ".ercreate")
-                            && !plugin.isDev((CommandSender) blockPlaceEvent.getPlayer())) {
-                        continue;
+                    if (!player.hasPermission(plugin.perm + ".ercreate")) {
+                        break;
                     }
                     plugin.getCMClist().add(block2);
                     String string = plugin.config.getStrength(block2).toString();
@@ -69,8 +68,7 @@ public class RepellerBlockListener implements Listener {
         Player player = blockBreakEvent.getPlayer();
         Block block = blockBreakEvent.getBlock();
         if (plugin.config.getRadius(block) != -1 && getAdjacentRepellerBlocks(block).size() > 0) {
-            if (!player.hasPermission(plugin.perm + ".erdestroy")
-                    && !plugin.isDev((CommandSender) blockBreakEvent.getPlayer())) {
+            if (!player.hasPermission(plugin.perm + ".erdestroy")) {
                 Iterator<Block> iterator = getAdjacentRepellerBlocks(block).iterator();
                 while (iterator.hasNext()) {
                     if (plugin.getCMClist().contains(iterator.next())) {
