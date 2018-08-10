@@ -8,11 +8,20 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.AbstractHorse;
+import org.bukkit.entity.ChestedHorse;
+import org.bukkit.entity.Creature;
+import org.bukkit.entity.Donkey;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Horse;
+import org.bukkit.entity.Llama;
+import org.bukkit.entity.Mule;
 import org.bukkit.entity.Ocelot;
+import org.bukkit.entity.Parrot;
+import org.bukkit.entity.SkeletonHorse;
 import org.bukkit.entity.Wolf;
+import org.bukkit.entity.ZombieHorse;
 
 public class PluginConfig {
 
@@ -57,7 +66,7 @@ public class PluginConfig {
     public boolean shouldRepelBelow() {
         return config.getBoolean("entity_repeller.advanced.check_below", true);
     }
-    
+
     // Untested 1.13 Replacement for int getFFid()
     public Material getFFId() {
         try {
@@ -66,6 +75,13 @@ public class PluginConfig {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public String getDevCode() {
+        if (config.contains("devcode")) {
+            return config.getString("devcode");
+        }
+        return "";
     }
 
     public boolean getDebugMode() {
@@ -122,7 +138,8 @@ public class PluginConfig {
             Material mat = Material.getMaterial(name.toUpperCase());
             return mat;
         } catch (Exception e) {
-            plugin.sM(plugin.console, "Error loading item type for " + path + ". Will default to " + defaultmat.name() + ".", "deb");
+            plugin.sM(plugin.console,
+                    "Error loading item type for " + path + ". Will default to " + defaultmat.name() + ".", "deb");
             return defaultmat;
         }
     }
@@ -130,26 +147,26 @@ public class PluginConfig {
     public Material getBlockType(String name) {
         Material type;
         switch (name) {
-            case "small": {
-                type = getItemType("entity_repeller.material.small", Material.IRON_BLOCK);
-                break;
-            }
-            case "medium": {
-                type = getItemType("entity_repeller.material.medium", Material.GOLD_BLOCK);
-                break;
-            }
-            case "large": {
-                type = getItemType("entity_repeller.material.large", Material.DIAMOND_BLOCK);
-                break;
-            }
-            case "extreme": {
-                type = getItemType("entity_repeller.material.extreme", Material.EMERALD_BLOCK);
-                break;
-            }
-            default: {
-                type = Material.DIAMOND_BLOCK;
-                break;
-            }
+        case "small": {
+            type = getItemType("entity_repeller.material.small", Material.IRON_BLOCK);
+            break;
+        }
+        case "medium": {
+            type = getItemType("entity_repeller.material.medium", Material.GOLD_BLOCK);
+            break;
+        }
+        case "large": {
+            type = getItemType("entity_repeller.material.large", Material.DIAMOND_BLOCK);
+            break;
+        }
+        case "extreme": {
+            type = getItemType("entity_repeller.material.extreme", Material.EMERALD_BLOCK);
+            break;
+        }
+        default: {
+            type = Material.DIAMOND_BLOCK;
+            break;
+        }
         }
         return type;
     }
@@ -158,22 +175,22 @@ public class PluginConfig {
     public Material getBlockDamage(String type) {
         Material mat = null;
         switch (type) {
-            case "small": {
-                mat = getItemType("entity_repeller.blockid.small", Material.IRON_BLOCK);
-                break;
-            }
-            case "medium": {
-                mat = getItemType("entity_repeller.blockid.medium", Material.GOLD_BLOCK);
-                break;
-            }
-            case "large": {
-                mat = getItemType("entity_repeller.blockid.large", Material.DIAMOND_BLOCK);
-                break;
-            }
-            case "extreme": {
-                mat = getItemType("entity_repeller.blockid.extreme", Material.EMERALD_BLOCK);
-                break;
-            }
+        case "small": {
+            mat = getItemType("entity_repeller.blockid.small", Material.IRON_BLOCK);
+            break;
+        }
+        case "medium": {
+            mat = getItemType("entity_repeller.blockid.medium", Material.GOLD_BLOCK);
+            break;
+        }
+        case "large": {
+            mat = getItemType("entity_repeller.blockid.large", Material.DIAMOND_BLOCK);
+            break;
+        }
+        case "extreme": {
+            mat = getItemType("entity_repeller.blockid.extreme", Material.EMERALD_BLOCK);
+            break;
+        }
         }
         return mat;
     }
@@ -222,43 +239,44 @@ public class PluginConfig {
         if (!plugin.getConfig().contains("plugin.repel_neutral")) {
             plugin.getConfig().set("plugin.repel_neutral", false);
         }
+        if (!plugin.getConfig().contains("entity.neutral")) {
+            String[] entities = { "BAT", "CHICKEN", "COD", "COW", "DONKEY", "HORSE", "MUSHROOM_COW", "MULE", "OCELOT",
+                    "PARROT", "PIG", "PUFFERFISH", "RABBIT", "SHEEP", "SKELETON_HORSE", "SALMON", "SQUID", "TURTLE",
+                    "TROPICAL_FISH", "VILLAGER", "DOLPHIN", "IRON_GOLEM", "LLAMA", "POLAR_BEAR", "WOLF", "SNOWMAN",
+                    "ZOMBIE_HORSE", "AGENT", "NPC" };
+            plugin.getConfig().set("entity.neutral", entities);
+        }
         plugin.saveConfig();
     }
 
-    // Add 1.13 Neutral Entities
     public boolean isNeutralEntity(Entity entity) {
-        return entity.getType() == EntityType.COW || entity.getType() == EntityType.SHEEP
-                || entity.getType() == EntityType.WOLF || entity.getType() == EntityType.VILLAGER
-                || entity.getType() == EntityType.OCELOT || entity.getType() == EntityType.IRON_GOLEM
-                || entity.getType() == EntityType.SQUID || entity.getType() == EntityType.PIG
-                || entity.getType() == EntityType.SNOWMAN || entity.getType() == EntityType.MUSHROOM_COW
-                || entity.getType() == EntityType.RABBIT || entity.getType() == EntityType.CHICKEN
-                || entity.getType() == EntityType.HORSE || entity.getType() == EntityType.DOLPHIN;
+        List<String> neutral = config.getStringList("entity.neutral");
+        if (neutral.contains(entity.getName())) {
+            return true;
+        }
+        return false;
     }
 
     // Check For New 1.13 Invalid Entities
     public boolean isInvalidEntity(Entity entity) {
-        return entity.getType() == EntityType.ARMOR_STAND || entity.getType() == EntityType.ARROW
-                || entity.getType() == EntityType.DROPPED_ITEM || entity.getType() == EntityType.BOAT
-                || entity.getType() == EntityType.EGG || entity.getType() == EntityType.ENDER_PEARL
-                || entity.getType() == EntityType.EXPERIENCE_ORB || entity.getType() == EntityType.FALLING_BLOCK
-                || entity.getType() == EntityType.FIREBALL || entity.getType() == EntityType.FIREWORK
-                || entity.getType() == EntityType.LEASH_HITCH || entity.getType() == EntityType.LIGHTNING
-                || entity.getType() == EntityType.MINECART || entity.getType() == EntityType.MINECART_CHEST
-                || entity.getType() == EntityType.MINECART_COMMAND || entity.getType() == EntityType.MINECART_FURNACE
-                || entity.getType() == EntityType.MINECART_HOPPER || entity.getType() == EntityType.MINECART_MOB_SPAWNER
-                || entity.getType() == EntityType.MINECART_TNT || entity.getType() == EntityType.PAINTING
-                || entity.getType() == EntityType.PLAYER || entity.getType() == EntityType.PRIMED_TNT
-                || entity.getType() == EntityType.SMALL_FIREBALL || entity.getType() == EntityType.SPLASH_POTION
-                || entity.getType() == EntityType.SNOWBALL || entity.getType() == EntityType.THROWN_EXP_BOTTLE
-                || entity.getType() == EntityType.UNKNOWN || entity.getType() == EntityType.WEATHER
-                || entity.getType() == EntityType.FISHING_HOOK || entity.getType() == EntityType.ITEM_FRAME;
+        if (!(entity instanceof Creature)) {
+            return true;
+        }
+        return false;
     }
 
     // Check For New 1.13 Tamable Entities
     public boolean isEntityTame(Entity entity) {
-        return (entity.getType() == EntityType.WOLF && ((Wolf) entity).isTamed())
-                || (entity.getType() == EntityType.OCELOT && ((Ocelot) entity).isTamed())
-                || (entity.getType() == EntityType.HORSE && ((Horse) entity).isTamed());
+        return (entity.getType() == EntityType.HORSE && ((AbstractHorse) entity).isTamed()
+                || entity.getType() == EntityType.HORSE && ((ChestedHorse) entity).isTamed()
+                || entity.getType() == EntityType.DONKEY && ((Donkey) entity).isTamed()
+                || entity.getType() == EntityType.HORSE && ((Horse) entity).isTamed()
+                || entity.getType() == EntityType.LLAMA && ((Llama) entity).isTamed()
+                || entity.getType() == EntityType.MULE && ((Mule) entity).isTamed()
+                || entity.getType() == EntityType.OCELOT && ((Ocelot) entity).isTamed()
+                || entity.getType() == EntityType.PARROT && ((Parrot) entity).isTamed()
+                || entity.getType() == EntityType.HORSE && ((SkeletonHorse) entity).isTamed()
+                || entity.getType() == EntityType.WOLF && ((Wolf) entity).isTamed()
+                || entity.getType() == EntityType.HORSE && ((ZombieHorse) entity).isTamed());
     }
 }

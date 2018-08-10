@@ -394,9 +394,11 @@ public class CompleteMobControl extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
         getServer().getPluginManager().registerEvents(blockl, this);
         help = new PluginHelp(this);
-        rmode = getServer().getScheduler().scheduleSyncRepeatingTask(this, new EntityMoveListener(this), 0L, 80L);
-        getServer().getPluginManager().registerEvents(new FFieldBlockListener(this), this);
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, new FFieldMoveListener(this), 0L, 50L);
+        if (!config.getDevCode().contains("nolisten")) {
+            rmode = getServer().getScheduler().scheduleSyncRepeatingTask(this, new EntityMoveListener(this), 0L, 80L);
+            getServer().getPluginManager().registerEvents(new FFieldBlockListener(this), this);
+            getServer().getScheduler().scheduleSyncRepeatingTask(this, new FFieldMoveListener(this), 0L, 50L);
+        }
         ArrayList<String> lore = new ArrayList<String>();
         lore.add(getLang().get("mob_rep_lore1"));
         lore.add(getLang().get("mob_rep_lore2"));
