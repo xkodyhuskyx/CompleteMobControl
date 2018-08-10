@@ -15,8 +15,8 @@
 
 name: CompleteMobControl
 main: com.kodyhusky.cmc.CompleteMobControl
-version: 2.02 B1
-author: kodyhusky
+version: 2.1.0 D1
+author: xkodyhuskyx
 description: CMC is a complete mob control option for your server!
 website: http://dev.bukkit.org/server-mods/completemobcontrol/
 commands:

@@ -8,7 +8,7 @@
     <name>CompleteMobControl</name>
     <description>A complete mob and entity management plugin for your craftbukkit based server.</description>
     <url>https://dev.bukkit.org/projects/completemobcontrol</url>
-    <version>2.1.0</version>
+    <version>2.1.0-D1</version>
     <organization>
         <name>Kody's Market</name>
         <url>http://www.kodysmarket.com/</url>
@@ -123,7 +123,7 @@
     </build>
     <developers>
         <developer>
-            <id>kodyhusky</id>
+            <id>xkodyhuskyx</id>
             <name>Jeffery Hancock</name>
             <email>xkodyhuskyx@gmail.com</email>
             <url>https://www.kodyhusky.com</url>
