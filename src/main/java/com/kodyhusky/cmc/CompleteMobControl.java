@@ -490,10 +490,6 @@ public class CompleteMobControl extends JavaPlugin {
         }
     }
 
-    public boolean isDev(CommandSender commandSender) {
-        return getDescription().getAuthors().contains(commandSender.getName());
-    }
-
     public LangMan getLang() {
         return lang;
     }
