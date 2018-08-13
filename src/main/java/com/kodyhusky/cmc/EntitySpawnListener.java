@@ -3,6 +3,7 @@ package com.kodyhusky.cmc;
 import java.util.HashSet;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -63,29 +64,24 @@ public class EntitySpawnListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntitySpawn(CreatureSpawnEvent creatureSpawnEvent) {
-        LivingEntity entity = creatureSpawnEvent.getEntity();
-        if (plugin.config.isNeutralEntity((Entity) entity) && !plugin.config.shouldRepelNeutralMobs()) {
-            return;
-        }
-        if (plugin.config.isInvalidEntity((Entity) entity)) {
-            return;
-        }
-        if (plugin.config.isEntityTame((Entity) entity)) {
-            return;
-        }
-        HashSet<EntityType> mobsToRepel = plugin.config.getMobsToRepel();
-        if (!mobsToRepel.isEmpty() && !mobsToRepel.contains(creatureSpawnEvent.getEntityType())) {
-            return;
-        }
-        if (plugin.getCMClist().isRepelled(creatureSpawnEvent.getLocation())) {
-            if (plugin.config.getDebugMode()) {
-                plugin.sM(plugin.console,
-                        creatureSpawnEvent.getEntityType().name() + " " + plugin.getLang().get("entity_rep_killed_by")
-                                + " " + plugin.getCMClist().getRepelledBaseId(creatureSpawnEvent.getLocation()),
-                        "deb");
+    public void onEntitySpawn(CreatureSpawnEvent event) {
+        if (event.getEntity() instanceof Creature) {
+            LivingEntity entity = event.getEntity();
+            if ((plugin.config.isNeutralEntity(entity) && !plugin.config.shouldRepelNeutralMobs())
+                    || plugin.config.isInvalidEntity(entity) || plugin.config.isEntityTame(entity)
+                    || (!plugin.config.getMobsToRepel().isEmpty()
+                            && !plugin.config.getMobsToRepel().contains(event.getEntityType()))) {
+            } else {
+                if (plugin.getCMClist().isRepelled(event.getLocation())) {
+                    if (plugin.config.getDebugMode()) {
+                        plugin.sM(plugin.console,
+                                event.getEntityType().name() + " " + plugin.getLang().get("entity_rep_killed_by") + " "
+                                        + plugin.getCMClist().getRepelledBaseId(event.getLocation()),
+                                "deb");
+                    }
+                    event.setCancelled(true);
+                }
             }
-            creatureSpawnEvent.setCancelled(true);
         }
     }
 }
