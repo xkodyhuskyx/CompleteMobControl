@@ -56,7 +56,9 @@ public class CompleteMobControl extends JavaPlugin {
     }
 
     public void onDisable() {
-        getServer().getScheduler().cancelTask((int) rmode);
+        if (rmode != null) {
+            getServer().getScheduler().cancelTask((int) rmode);
+        }
         sM(console, "Thank you for using CompleteMobControl!", "norm");
         sM(console, "Plugin successfully disabled!", "norm");
     }
