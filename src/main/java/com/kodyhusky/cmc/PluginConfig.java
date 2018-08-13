@@ -8,8 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.AbstractHorse;
-import org.bukkit.entity.ChestedHorse;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Donkey;
 import org.bukkit.entity.Entity;
@@ -30,6 +28,7 @@ public class PluginConfig {
     HashSet<EntityType> mobsToRepel;
     File cf;
     List<World> dworlds;
+    List<String> neutral;
 
     public PluginConfig(CompleteMobControl plugin) {
         this.plugin = plugin;
@@ -47,6 +46,7 @@ public class PluginConfig {
                 plugin.sM(plugin.console, "Unknown entity type " + name + " in mobs_to_repel.", "warn");
             }
         }
+        neutral = config.getStringList("entity.neutral");
     }
 
     public void reload() {
@@ -250,8 +250,7 @@ public class PluginConfig {
     }
 
     public boolean isNeutralEntity(Entity entity) {
-        List<String> neutral = config.getStringList("entity.neutral");
-        if (neutral.contains(entity.getName())) {
+        if (neutral.contains(entity.getType().toString().toUpperCase())) {
             return true;
         }
         return false;
