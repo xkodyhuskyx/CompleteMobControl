@@ -1,11 +1,7 @@
 package com.kodyhusky.cmc;
 
-import java.util.HashSet;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Creature;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -45,21 +41,24 @@ public class EntitySpawnListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onCraft(PrepareItemCraftEvent prepareItemCraftEvent) {
-        if (prepareItemCraftEvent.getRecipe().getResult().hasItemMeta()) {
-            String replace = prepareItemCraftEvent.getRecipe().getResult().getItemMeta().getDisplayName().toLowerCase()
-                    .replace(" ", "");
-            if ((prepareItemCraftEvent.getRecipe().getResult().getItemMeta().getDisplayName().toLowerCase()
-                    .equals(plugin.getLang().get("mob_rep").toLowerCase())
-                    || prepareItemCraftEvent.getRecipe().getResult().getItemMeta().getDisplayName().toLowerCase()
-                            .equals(plugin.getLang().get("mob_swo").toLowerCase()))
-                    && !prepareItemCraftEvent.getView().getPlayer().hasPermission("completemc.craft." + replace)) {
-                prepareItemCraftEvent.getInventory().setResult((ItemStack) null);
-                plugin.sM((CommandSender) prepareItemCraftEvent.getView().getPlayer(),
-                        plugin.getLang().get("no_craft_perm") + " " + prepareItemCraftEvent.getRecipe().getResult()
-                                .getItemMeta().getDisplayName().toLowerCase() + "!",
-                        "err");
+    public void onCraft(PrepareItemCraftEvent event) {
+        try {
+            if (event.getRecipe().getResult().hasItemMeta()) {
+                String replace = event.getRecipe().getResult().getItemMeta().getDisplayName().toLowerCase().replace(" ",
+                        "");
+                if ((event.getRecipe().getResult().getItemMeta().getDisplayName().toLowerCase()
+                        .equals(plugin.getLang().get("mob_rep").toLowerCase())
+                        || event.getRecipe().getResult().getItemMeta().getDisplayName().toLowerCase()
+                                .equals(plugin.getLang().get("mob_swo").toLowerCase()))
+                        && !event.getView().getPlayer().hasPermission("completemc.craft." + replace)) {
+                    event.getInventory().setResult((ItemStack) null);
+                    plugin.sM((CommandSender) event.getView().getPlayer(),
+                            plugin.getLang().get("no_craft_perm") + " "
+                                    + event.getRecipe().getResult().getItemMeta().getDisplayName().toLowerCase() + "!",
+                            "err");
+                }
             }
+        } catch (Exception e) {
         }
     }
 
