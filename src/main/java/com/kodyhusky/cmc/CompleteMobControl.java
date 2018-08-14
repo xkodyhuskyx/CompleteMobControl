@@ -25,6 +25,7 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Dye;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 public class CompleteMobControl extends JavaPlugin {
 
@@ -39,7 +40,7 @@ public class CompleteMobControl extends JavaPlugin {
     CommandSender console;
     Boolean reload;
     PluginHelp help;
-    Integer rmode;
+    BukkitTask rmode;
     LangMan lang;
 
     public CompleteMobControl() {
@@ -57,7 +58,7 @@ public class CompleteMobControl extends JavaPlugin {
 
     public void onDisable() {
         if (rmode != null) {
-            getServer().getScheduler().cancelTask((int) rmode);
+            rmode.cancel();
         }
         sM(console, "Thank you for using CompleteMobControl!", "norm");
         sM(console, "Plugin successfully disabled!", "norm");
@@ -72,8 +73,8 @@ public class CompleteMobControl extends JavaPlugin {
                         return true;
                     }
                     config.reload();
-                    getServer().getScheduler().cancelTask((int) rmode);
-                    rmode = getServer().getScheduler().scheduleSyncRepeatingTask(this, new EntityMoveListener(this), 0L, 50L);
+                    rmode.cancel();
+                    rmode = getServer().getScheduler().runTaskTimerAsynchronously(this, new EntityMoveListener(this), 0L, 80L);
                     sM(commandSender, "The plugin configuration has been successfully reloaded!", "norm");
                     return true;
                 } else if (array[0].equalsIgnoreCase("version")) {
@@ -396,10 +397,10 @@ public class CompleteMobControl extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
         getServer().getPluginManager().registerEvents(blockl, this);
         help = new PluginHelp(this);
+        getServer().getPluginManager().registerEvents(new FFieldBlockListener(this), this);
         if (!config.getDevCode().contains("nolisten")) {
-            rmode = getServer().getScheduler().scheduleSyncRepeatingTask(this, new EntityMoveListener(this), 0L, 80L);
-            getServer().getPluginManager().registerEvents(new FFieldBlockListener(this), this);
-            getServer().getScheduler().scheduleSyncRepeatingTask(this, new FFieldMoveListener(this), 0L, 50L);
+            rmode = getServer().getScheduler().runTaskTimerAsynchronously(this, new EntityMoveListener(this), 0L, 80L);
+            getServer().getScheduler().runTaskTimerAsynchronously(this, new FFieldMoveListener(this), 0L, 50L);
         }
         ArrayList<String> lore = new ArrayList<String>();
         lore.add(getLang().get("mob_rep_lore1"));
