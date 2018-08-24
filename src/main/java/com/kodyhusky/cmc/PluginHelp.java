@@ -71,8 +71,6 @@ public class PluginHelp {
     public void page3() {
         plugin.sM(sender, MessageFormat.format("{0}-- {1}{2} {0}--", ChatColor.YELLOW, ChatColor.GOLD,
                 plugin.getLang().get("help_p3_1")), "non");
-        plugin.sM(sender, MessageFormat.format("{0}/ffield toggle{1}: {2}", ChatColor.GREEN, ChatColor.WHITE,
-                plugin.getLang().get("help_p3_2")), "non");
         plugin.sM(sender, MessageFormat.format("{0}/cmc help {1}1{0}: {2}", ChatColor.GOLD, ChatColor.RED,
                 plugin.getLang().get("help_first")), "non");
     }

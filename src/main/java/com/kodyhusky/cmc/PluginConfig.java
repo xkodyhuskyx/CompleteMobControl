@@ -67,16 +67,6 @@ public class PluginConfig {
         return config.getBoolean("entity_repeller.advanced.check_below", true);
     }
 
-    // Untested 1.13 Replacement for int getFFid()
-    public Material getFFId() {
-        try {
-            Material block = Material.valueOf(config.getString("force_field.material").toUpperCase());
-            return block;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     public String getDevCode() {
         if (config.contains("devcode")) {
             return config.getString("devcode");
@@ -229,9 +219,6 @@ public class PluginConfig {
         }
         if (!plugin.getConfig().contains("entity_repeller.advanced.mobs_to_repel")) {
             plugin.getConfig().createSection("entity_repeller.advanced.mobs_to_repel");
-        }
-        if (!plugin.getConfig().contains("force_field.material")) {
-            plugin.getConfig().set("force_field.material", "CLAY");
         }
         if (!plugin.getConfig().contains("plugin.debug_mode")) {
             plugin.getConfig().set("plugin.debug_mode", false);

@@ -26,9 +26,6 @@ commands:
     erepel:
         description: Entity repeller commands.
         usage: "Usage: /cmc help 2"
-    ffield:
-        description: Entity forcefield commands.
-        usage: "Usage: /cmc help 3"
 permissions:
     completemc.reload:
         description: Allows access to the /cmc reload command.
@@ -59,12 +56,6 @@ permissions:
         default: op
     completemc.ermodify:
         description: Allows access to the /erepel modify command.
-        default: op
-    completemc.fftoggle:
-        description: Allows access to the /ffield toggle command.
-        default: op
-    completemc.ffremove:
-        description: Allows a player to remove a forcefield.
         default: op
     completemc.craft.mobrepellent:
         description: Allows a player to craft mobrepellent.

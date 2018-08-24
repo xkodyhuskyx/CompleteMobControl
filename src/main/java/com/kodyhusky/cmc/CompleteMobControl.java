@@ -31,7 +31,6 @@ public class CompleteMobControl extends JavaPlugin {
 
     RepellerList repellers;
     RepellerBlockListener blockl;
-    HashMap<String, Boolean> Toggler;
     ArrayList<World> worlds;
     PluginConfig config;
     Integer DLT;
@@ -44,7 +43,6 @@ public class CompleteMobControl extends JavaPlugin {
     LangMan lang;
 
     public CompleteMobControl() {
-        Toggler = new HashMap<String, Boolean>();
         pnames = "CMC";
         perm = "completemc";
         reload = false;
@@ -350,34 +348,6 @@ public class CompleteMobControl extends JavaPlugin {
                 return true;
             }
         }
-        if (command.getName().equalsIgnoreCase("ffield")) {
-            try {
-                if (!array[0].equalsIgnoreCase("toggle")) {
-                    sM(commandSender, "An unspecified error has occurred!", "err");
-                    return true;
-                }
-                if (!commandSender.hasPermission(perm + ".fftoggle")) {
-                    sM(commandSender, "You do not have permission to perform this command!", "err");
-                    return true;
-                }
-                if ("CONSOLE".equals(commandSender.getName())) {
-                    sM(commandSender, "This command can not be run from the console!", "err");
-                    return true;
-                }
-                if (Toggler.containsKey(commandSender.getName())) {
-                    Toggler.remove(commandSender.getName());
-                } else {
-                    Toggler.put(commandSender.getName(), true);
-                }
-                sM(commandSender, MessageFormat.format("You have {0} forcefield building mode!",
-                        Toggler.containsKey(commandSender.getName()) ? "entered" : "left"), "norm");
-                return true;
-            } catch (Exception ex8) {
-                sM(commandSender, MessageFormat.format("{0}Please use {1}/cmc help 3{0} for command help!",
-                        ChatColor.GOLD, ChatColor.RED), "non");
-                return true;
-            }
-        }
         return false;
     }
 
@@ -397,11 +367,7 @@ public class CompleteMobControl extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
         getServer().getPluginManager().registerEvents(blockl, this);
         help = new PluginHelp(this);
-        getServer().getPluginManager().registerEvents(new FFieldBlockListener(this), this);
-        if (!config.getDevCode().contains("nolisten")) {
-            rmode = getServer().getScheduler().runTaskTimerAsynchronously(this, new EntityMoveListener(this), 0L, 80L);
-            getServer().getScheduler().runTaskTimerAsynchronously(this, new FFieldMoveListener(this), 0L, 50L);
-        }
+        rmode = getServer().getScheduler().runTaskTimerAsynchronously(this, new EntityMoveListener(this), 0L, 80L);
         ArrayList<String> lore = new ArrayList<String>();
         lore.add(getLang().get("mob_rep_lore1"));
         lore.add(getLang().get("mob_rep_lore2"));
