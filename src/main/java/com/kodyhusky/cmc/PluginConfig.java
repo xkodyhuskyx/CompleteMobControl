@@ -1,6 +1,7 @@
 package com.kodyhusky.cmc;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -29,6 +30,7 @@ public class PluginConfig {
     File cf;
     List<World> dworlds;
     List<String> neutral;
+    List<String> enabledworlds;
 
     public PluginConfig(CompleteMobControl plugin) {
         this.plugin = plugin;
@@ -47,6 +49,14 @@ public class PluginConfig {
             }
         }
         neutral = config.getStringList("entity.neutral");
+        for (String name : config.getStringList("plugin.enabled_worlds")) {
+            World world = plugin.getServer().getWorld(name);
+            if (world != null) {
+                enabledworlds.add(name);
+            } else {
+                plugin.sM(plugin.console, "Unknown world " + name + " in config.yml!", "warn");
+            }
+        }
     }
 
     public void reload() {
@@ -226,6 +236,13 @@ public class PluginConfig {
         if (!plugin.getConfig().contains("plugin.repel_neutral")) {
             plugin.getConfig().set("plugin.repel_neutral", false);
         }
+        if (!plugin.getConfig().contains("plugin.enabled_worlds")) {
+            List<String> entities = new ArrayList<>();
+            for (World world : plugin.getServer().getWorlds()) {
+                entities.add(world.getName());
+            }
+            plugin.getConfig().set("plugin.enabled_worlds", entities);
+        }
         if (!plugin.getConfig().contains("entity.neutral")) {
             String[] entities = { "BAT", "CHICKEN", "COD", "COW", "DONKEY", "HORSE", "MUSHROOM_COW", "MULE", "OCELOT",
                     "PARROT", "PIG", "PUFFERFISH", "RABBIT", "SHEEP", "SKELETON_HORSE", "SALMON", "SQUID", "TURTLE",
@@ -249,6 +266,10 @@ public class PluginConfig {
             return true;
         }
         return false;
+    }
+    
+    public List<String> getEnabledWorlds() {
+        return enabledworlds;
     }
 
     // Check For New 1.13 Tamable Entities

@@ -1,12 +1,9 @@
 package com.kodyhusky.cmc;
 
-import java.util.HashSet;
-import java.util.Iterator;
-
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 
 public class EntityMoveListener implements Runnable {
     
@@ -14,46 +11,27 @@ public class EntityMoveListener implements Runnable {
     
     public EntityMoveListener(CompleteMobControl plugin) {
         this.plugin = plugin;
-        run();
     }
     
     @Override
     public void run() {
-        Iterator<World> iterator = plugin.getWorlds().iterator();
-        while (iterator.hasNext()) {
-            for (LivingEntity livingEntity : iterator.next().getLivingEntities()) {
-                Integer n = 1;
-                if (plugin.config.isNeutralEntity((Entity)livingEntity) && !plugin.config.shouldRepelNeutralMobs()) {
-                    n = 0;
-                }
-                if (plugin.config.isInvalidEntity((Entity)livingEntity)) {
-                    n = 0;
-                }
-                if (n == 1) {
-                    if (livingEntity.isLeashed()) {
-                        n = 0;
+        for (World world : plugin.getServer().getWorlds()) {
+            if (plugin.config.getEnabledWorlds().contains(world.getName())) {
+                for (LivingEntity entity : world.getLivingEntities()) {
+                    if (!(entity instanceof Player) && !plugin.config.isInvalidEntity((Entity)entity) && 
+                        !entity.isLeashed() && plugin.config.isEntityTame((Entity)entity) && 
+                        !(plugin.config.isNeutralEntity((Entity)entity) && !plugin.config.shouldRepelNeutralMobs()) && 
+                        !(!plugin.config.getMobsToRepel().isEmpty() && !plugin.config.getMobsToRepel().contains(entity.getType()))) {
+                        if (plugin.getCMClist().isRepelled(entity.getLocation())) {
+                            if (entity.getFireTicks() <= 0 || entity.getHealth() > 1.0) {
+                                entity.setHealth(1.0);
+                                entity.setFireTicks(30000);
+                            }
+                            if (plugin.config.getDebugMode()) {
+                                plugin.sM(plugin.console, entity.getType().name() + " " + plugin.getLang().get("entity_rep_killed_by") + " " + plugin.getCMClist().getRepelledBaseId(entity.getLocation()), "deb");
+                            }
+                        }
                     }
-                    if (plugin.config.isEntityTame((Entity)livingEntity)) {
-                        n = 0;
-                    }
-                    if (n != 1 || livingEntity.getType() == EntityType.PLAYER) {
-                        continue;
-                    }
-                    HashSet<EntityType> mobsToRepel = plugin.config.getMobsToRepel();
-                    if (!mobsToRepel.isEmpty() && !mobsToRepel.contains(livingEntity.getType())) {
-                        n = 0;
-                    }
-                    if (n != 1 || !plugin.getCMClist().isRepelled(livingEntity.getLocation())) {
-                        continue;
-                    }
-                    if (livingEntity.getFireTicks() <= 0 || livingEntity.getHealth() > 1.0) {
-                        livingEntity.setHealth(1.0);
-                        livingEntity.setFireTicks(30000);
-                    }
-                    if (!plugin.config.getDebugMode()) {
-                        continue;
-                    }
-                    plugin.sM(plugin.console, livingEntity.getType().name() + " " + plugin.getLang().get("entity_rep_killed_by") + " " + plugin.getCMClist().getRepelledBaseId(livingEntity.getLocation()), "deb");
                 }
             }
         }

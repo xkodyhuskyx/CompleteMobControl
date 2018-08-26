@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
@@ -48,7 +47,7 @@ public class CompleteMobControl extends JavaPlugin {
         reload = false;
         rmode = null;
     }
-
+    
     public void onEnable() {
         console = getServer().getConsoleSender();
         DLT = getServer().getScheduler().scheduleSyncDelayedTask(this, new DelayLoadRunnable(this));
