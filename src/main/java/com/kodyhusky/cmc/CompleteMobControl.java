@@ -358,6 +358,7 @@ public class CompleteMobControl extends JavaPlugin {
     public void loadPlugin() {
         getServer().getScheduler().cancelTask((int) DLT);
         (config = new PluginConfig(this)).checkConfig();
+        config.load();
         lang = new LangMan(this);
         sM(console, "Loaded language file: " + getLang().get("lang-name"), "norm");
         getWorlds();

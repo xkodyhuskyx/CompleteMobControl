@@ -30,15 +30,15 @@ public class PluginConfig {
     File cf;
     List<World> dworlds;
     List<String> neutral;
-    List<String> enabledworlds;
+    List<String> enabledworlds = new ArrayList<>();
+    String removetype = "";
 
     public PluginConfig(CompleteMobControl plugin) {
         this.plugin = plugin;
         config = plugin.getConfig();
-        load();
     }
 
-    private void load() {
+    public void load() {
         mobsToRepel = new HashSet<EntityType>();
         for (String name : config.getStringList("entity_repeller.advanced.mobs_to_repel")) {
             try {
@@ -57,6 +57,7 @@ public class PluginConfig {
                 plugin.sM(plugin.console, "Unknown world " + name + " in config.yml!", "warn");
             }
         }
+        removetype = config.getString("plugin.remove_type").toUpperCase();
     }
 
     public void reload() {
@@ -134,12 +135,12 @@ public class PluginConfig {
 
     private Material getItemType(String path, Material defaultmat) {
         try {
-            String name = config.getString("path");
+            String name = config.getString(path);
             Material mat = Material.getMaterial(name.toUpperCase());
             return mat;
         } catch (Exception e) {
             plugin.sM(plugin.console,
-                    "Error loading item type for " + path + ". Will default to " + defaultmat.name() + ".", "deb");
+                    "Error loading item type for " + path + ". Will default to " + defaultmat.name() + ".", "err");
             return defaultmat;
         }
     }
@@ -224,7 +225,7 @@ public class PluginConfig {
         if (!plugin.getConfig().contains("entity_repeller.material.extreme")) {
             plugin.getConfig().set("entity_repeller.material.extreme", "EMERALD_BLOCK");
         }
-        if (!plugin.getConfig().contains("entity_repeller.advanced.ignore_below")) {
+        if (!plugin.getConfig().contains("entity_repeller.advanced.check_below")) {
             plugin.getConfig().set("entity_repeller.advanced.check_below", true);
         }
         if (!plugin.getConfig().contains("entity_repeller.advanced.mobs_to_repel")) {
@@ -235,6 +236,9 @@ public class PluginConfig {
         }
         if (!plugin.getConfig().contains("plugin.repel_neutral")) {
             plugin.getConfig().set("plugin.repel_neutral", false);
+        }
+        if (!plugin.getConfig().contains("plugin.remove_type")) {
+            plugin.getConfig().set("plugin.remove_type", "FIRE");
         }
         if (!plugin.getConfig().contains("plugin.enabled_worlds")) {
             List<String> entities = new ArrayList<>();
@@ -270,6 +274,10 @@ public class PluginConfig {
     
     public List<String> getEnabledWorlds() {
         return enabledworlds;
+    }
+    
+    public String getRemoveType() {
+        return removetype;
     }
 
     // Check For New 1.13 Tamable Entities
