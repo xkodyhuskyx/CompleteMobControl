@@ -49,7 +49,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.13-R0.1-SNAPSHOT</version>
+            <version>1.14.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
             <optional>false</optional>
         </dependency>
@@ -108,7 +108,7 @@
                 <directory>${basedir}/src/main/resources/</directory>
                 <includes>
                     <include>plugin.yml</include>
-                    <include>lang.yml</include>
+                    <include>lang/english.yml</include>
                 </includes>
             </resource>
         </resources>

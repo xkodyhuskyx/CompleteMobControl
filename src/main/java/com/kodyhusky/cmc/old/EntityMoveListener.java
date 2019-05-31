@@ -1,4 +1,4 @@
-package com.kodyhusky.cmc;
+package com.kodyhusky.cmc.old;
 
 import org.bukkit.World;
 import org.bukkit.entity.Entity;

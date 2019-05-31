@@ -1,4 +1,4 @@
-package com.kodyhusky.cmc;
+package com.kodyhusky.cmc.old;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -286,7 +286,6 @@ public class PluginConfig {
                 || entity.getType() == EntityType.HORSE && ((Horse) entity).isTamed()
                 || entity.getType() == EntityType.LLAMA && ((Llama) entity).isTamed()
                 || entity.getType() == EntityType.MULE && ((Mule) entity).isTamed()
-                || entity.getType() == EntityType.OCELOT && ((Ocelot) entity).isTamed()
                 || entity.getType() == EntityType.PARROT && ((Parrot) entity).isTamed()
                 || entity.getType() == EntityType.SKELETON_HORSE && ((SkeletonHorse) entity).isTamed()
                 || entity.getType() == EntityType.WOLF && ((Wolf) entity).isTamed()
