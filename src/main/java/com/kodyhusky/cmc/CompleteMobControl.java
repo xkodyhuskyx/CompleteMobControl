@@ -7,19 +7,19 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class CompleteMobControl extends JavaPlugin {
     
-    private ConfigReader config;
-    private LanguageReader language;
+    private ConfigManager config;
+    private LanguageManager language;
     
     @Override
     public void onLoad() {
-        config = new ConfigReader(this);
-        language = new LanguageReader(this, config.getLangName());
+        config = new ConfigManager(this);
+        language = new LanguageManager(this, config.getLangName());
         
     }
     
     @Override
     public void onEnable() {
-        if (language.isLoaded()) {
+        if (config.isLoaded()) {
             
         } else {
             log(Level.SEVERE, "An error occured on load. Plugin will be disabled.", null);
@@ -39,11 +39,20 @@ public class CompleteMobControl extends JavaPlugin {
     }
     
     /**
+     * Gets the initialized LanguageReader class.
+     * 
+     * @return LanguageReader
+     */
+    public LanguageManager getLangManager() {
+        return language;
+    }
+    
+    /**
      * Gets the initialized ConfigReader class.
      * 
      * @return ConfigReader
      */
-    public ConfigReader getConfigReader() {
+    public ConfigManager getConfigManager() {
         return config;
     }
     

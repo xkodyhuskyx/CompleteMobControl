@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.bukkit.configuration.file.FileConfiguration;
 
-public class LanguageReader {
+public class LanguageManager {
     
     private CompleteMobControl plugin;
     private FileConfiguration config = null;
@@ -15,13 +15,14 @@ public class LanguageReader {
     // Add to this if a new embeded language file is added!
     private List<String> languages = Stream.of("english", "spanish").collect(Collectors.toList());
     
-    public LanguageReader(CompleteMobControl plugin, String lang) {
+    public LanguageManager(CompleteMobControl plugin, String lang) {
         
         // Initialize LanguageReader class
         this.plugin = plugin;
+        plugin.log(Level.INFO, "Loading language data...", null);
         
         // Check For Sucessful Config Load
-        if (!plugin.getConfigReader().isLoaded()) {
+        if (!plugin.getConfigManager().isLoaded()) {
             return;
         }
         
