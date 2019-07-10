@@ -1,51 +1,37 @@
 package com.kodyhusky.cmc;
 
 import java.io.File;
-import java.util.List;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public class LanguageManager {
     
     private CompleteMobControl plugin;
-    private FileConfiguration config = null;
+    private FileConfiguration language = null;
     
-    // Add to this if a new embeded language file is added!
-    private List<String> languages = Stream.of("english", "spanish").collect(Collectors.toList());
-    
-    public LanguageManager(CompleteMobControl plugin, String lang) {
+    public LanguageManager(CompleteMobControl plugin) {
         
-        // Initialize LanguageReader class
         this.plugin = plugin;
-        plugin.log(Level.INFO, "Loading language data...", null);
         
         // Check For Sucessful Config Load
-        if (!plugin.getConfigManager().isLoaded()) {
-            return;
-        }
-        
-        // Check for language folder
-        File langfolder = new File(plugin.getDataFolder(), "lang");
-        if (!langfolder.exists()) {
-            try {
-                langfolder.mkdirs();
-                // Save Default Language Files
-                languages.forEach((filename) -> {
-                    try {
-                        plugin.saveResource((new StringBuilder().append("lang").append(File.separator).append(filename).append(".yml")).toString(), false);
-                    } catch (Exception e) {
-                        plugin.log(Level.WARNING, "Unable to save language file (" + filename + ".yml).", e);
-                    }
-                });
-            } catch (Exception e) {
-                plugin.log(Level.SEVERE, "Unable to create language folder.", e);
+        if (plugin.getConfigManager().isLoaded()) {
+            
+            // Load Language Config File
+            plugin.log(Level.INFO, "Loading language data...", null);
+            File languageFile = new File(plugin.getDataFolder(), "language.yml");
+            if (!languageFile.exists()) {
+                plugin.saveResource("language.yml", false);
+            }
+            if (languageFile.exists()) {
+                language = YamlConfiguration.loadConfiguration(languageFile);
+            } else {
+                plugin.log(Level.SEVERE, "Unable to create language configuration file (language.yml).", null);
             }
         }
     }
     
     public boolean isLoaded() {
-        return config != null;
+        return language != null;
     }
 }

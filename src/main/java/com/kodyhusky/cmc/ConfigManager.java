@@ -23,65 +23,61 @@ public class ConfigManager {
     private CompleteMobControl plugin;
     private FileConfiguration config = null;
     
+    private List<String> repellerKeys = Stream.of("english", "spanish").collect(Collectors.toList());
+    
     public ConfigManager(CompleteMobControl plugin) {
-        this.plugin = plugin;
-        plugin.log(Level.INFO, "Loading config.yml data...", null);
         
-        File configfile = new File(plugin.getDataFolder(), "config.yml");
-        if (!configfile.exists()) {
+        this.plugin = plugin;
+        
+        // Load config.yml
+        plugin.log(Level.INFO, "Loading config.yml data...", null);
+        File configFile = new File(plugin.getDataFolder(), "config.yml");
+        if (!configFile.exists()) {
             try {
                 plugin.saveDefaultConfig();
+                config = plugin.getConfig();
             } catch (Exception e) {
                 plugin.log(Level.SEVERE, "Unable to save default config file (plugin.yml).", e);
                 return;
             }
         }
-        config = plugin.getConfig();
-        if (config != null) {
-            plugin.log(Level.INFO, "Loading repeller data...", null);
-            File repellerfile = new File(plugin.getDataFolder(), "repellers" + File.separator + "config.yml");
-            if (!repellerfile.exists()) {
-                try {
-                    plugin.saveResource("repellers" + File.separator + "example.yml", true);
-                } catch (Exception e) {
-                    plugin.log(Level.WARNING, "Unable to save example repeller file (repellers/example.yml).", e);
+        
+        // Load all repeller configuration files
+        plugin.log(Level.INFO, "Loading repeller data...", null);
+        File repellersFolder = new File(plugin.getDataFolder(), "repellers");
+        if (!repellersFolder.exists()) {
+            repellersFolder.mkdirs();
+        }
+        if (repellersFolder.exists()) {
+            for (File repellerFile : (new File(plugin.getDataFolder(), "repellers")).listFiles()) {
+                if (repellerFile.isFile() || repellerFile.getName().endsWith(".yml")) {
+                    FileConfiguration repellerConfig = checkRepellerFile(repellerFile);
+                    if (repellerConfig != null) {
+                        // NEEDS COMPLETING
+                    }
                 }
             }
+        } else {
+            plugin.log(Level.SEVERE, "Unable to create repeller configuration directory (/repellers).", null);
         }
-        loadRepellers();
-        
     }
     
-    private void loadRepellers() {
-        File[] repellerfiles = (new File(plugin.getDataFolder(), "repellers")).listFiles();
-        
-        for (File file : repellerfiles) {
-            if (file.isFile()) {
-                if (!"example.yml".equals(file.getName()) && file.getName().endsWith(".yml")) {
-                    FileConfiguration rconfig = YamlConfiguration.loadConfiguration(file);
-                    List<String> checks = Stream.of("english", "spanish").collect(Collectors.toList());
-                    checks.forEach((key) -> {
-                        if (!rconfig.contains(key) || rconfig.get(key) == null) {
-                            plugin.log(Level.WARNING, "Repeller config file (" + file.getName() + ") is missing a required key (" + key + ") and was not loaded.", null);
-                        } else {
-                            // DO DOMETHING HERE
-                        }
-                    });
-                }
+    public FileConfiguration checkRepellerFile(File repellerFile) {
+        FileConfiguration repellerConfig = YamlConfiguration.loadConfiguration(repellerFile);
+        for (String key : repellerKeys) {
+            if (!repellerConfig.contains(key) || repellerConfig.get(key) == null) {
+                plugin.log(Level.WARNING, "Repeller configuration file (" + repellerFile.getName() + ") is missing a required key (" + key + ") and was not loaded.", null);
+                return null;
             }
         }
-    }
-
-    public boolean debugEnabled() {
-        return false;
-    }
-
-    String getLangName() {
-        return "";
+        return repellerConfig;
     }
     
     public boolean isLoaded() {
-        return (config != null && plugin.getLangManager().isLoaded());
+        return config != null;
     }
     
+    public boolean debugEnabled() {
+        return config.getBoolean("debug", false);
+    }
 }
