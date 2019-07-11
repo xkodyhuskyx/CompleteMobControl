@@ -14,7 +14,7 @@ public class LanguageManager {
         
         this.plugin = plugin;
         
-        // Check For Sucessful Config Load
+        // Check For Successful Config Load
         if (plugin.getConfigManager().isLoaded()) {
             
             // Load Language Config File

@@ -26,6 +26,7 @@ import org.bukkit.material.Dye;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
+@SuppressWarnings("deprecation")
 public class CompleteMobControl extends JavaPlugin {
 
     RepellerList repellers;

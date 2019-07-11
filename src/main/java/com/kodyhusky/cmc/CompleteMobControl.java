@@ -2,6 +2,7 @@ package com.kodyhusky.cmc;
 
 import java.util.logging.Level;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.kodyhusky.cmc.listeners.EntitySpawnListener;
 
 public class CompleteMobControl extends JavaPlugin {
     
@@ -20,6 +21,7 @@ public class CompleteMobControl extends JavaPlugin {
             
             
             // NEED COMPLETED
+        	getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
             
             
         } else {

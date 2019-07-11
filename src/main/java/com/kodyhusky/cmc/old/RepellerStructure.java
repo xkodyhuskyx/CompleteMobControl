@@ -13,7 +13,8 @@ public class RepellerStructure {
     private World world;
     private int data;
 
-    public RepellerStructure(Block block) {
+    @SuppressWarnings("deprecation")
+	public RepellerStructure(Block block) {
         this(block.getX(), block.getY(), block.getZ(), block.getWorld(), block.getType(), block.getData());
     }
 

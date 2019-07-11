@@ -16,7 +16,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Llama;
 import org.bukkit.entity.Mule;
-import org.bukkit.entity.Ocelot;
 import org.bukkit.entity.Parrot;
 import org.bukkit.entity.SkeletonHorse;
 import org.bukkit.entity.Wolf;
@@ -280,7 +279,7 @@ public class PluginConfig {
         return removetype;
     }
 
-    // Check For New 1.13 Tamable Entities
+    // Check For New 1.13 Tameable Entities
     public boolean isEntityTame(Entity entity) {
         return (entity.getType() == EntityType.DONKEY && ((Donkey) entity).isTamed()
                 || entity.getType() == EntityType.HORSE && ((Horse) entity).isTamed()

@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 name: CompleteMobControl
-main: com.kodyhusky.cmc.CompleteMobControl
+main: com.kodyhusky.cmc.old.CompleteMobControl
 version: 2.1.0 D1
 author: xkodyhuskyx
 api-version: 1.13
