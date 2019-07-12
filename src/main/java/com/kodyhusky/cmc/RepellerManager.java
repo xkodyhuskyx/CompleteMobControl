@@ -4,13 +4,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.entity.EntityType;
+
+import com.kodyhusky.cmc.objects.EntityRepeller;
 
 public class RepellerManager {
 	
 	private CompleteMobControl plugin;
-	
-	/*private HashMap<Double,EntityRepeller> loadedRepellers;*/
+	private HashMap<Float,EntityRepeller> loadedRepellers;
+	private List<EntityType> enabledEntities;
 	
 	// Pitch = Repeller ID | Yaw = Radius
 	private List<Location> enabledRepellerLocations;
@@ -19,36 +21,25 @@ public class RepellerManager {
 		this.plugin = plugin;
 	}
 	
-	/*public EntityRepeller getRepellerByLocation(Location location) {
-		
-		
+	public EntityRepeller getRepellerByLocation(Location location) {
 		for (Location repellerLocation : enabledRepellerLocations) {
-			double x = repellerLocation.getX() + repellerLocation.getYaw();
-		}
-		
-		
-		
-		
-		
-		
+			if (repellerLocation.getWorld().getUID().equals(location.getWorld().getUID()) && 
+					repellerLocation.getX() - repellerLocation.getYaw() < location.getX() &&
+					repellerLocation.getX() + repellerLocation.getYaw() > location.getX() && 
+					repellerLocation.getY() - repellerLocation.getYaw() < location.getY() && 
+					repellerLocation.getY() + repellerLocation.getYaw() > location.getY() && 
+					repellerLocation.getZ() - repellerLocation.getYaw() < location.getZ() && 
+					repellerLocation.getZ() + repellerLocation.getYaw() > location.getZ()) {
+				EntityRepeller repeller = loadedRepellers.get(repellerLocation.getPitch());
+				if ((location.getY() < repellerLocation.getY() && repeller.repelsBelow()) && 
+						(location.getY() >= repellerLocation.getY() && repeller.repelsAbove())) {
+					return repeller;
+				}}}
 		return null;
-		double x = location.getX();
-        double y = location.getY();
-        double z = location.getZ();
-        World world = location.getWorld();
-        for (RepellerStructure repellerStructure : list) {
-            int radius = plugin.config.getRadius(repellerStructure);
-            if (!plugin.config.shouldRepelBelow() && repellerStructure.getY() > y) {
-                return false;
-            }
-            if (repellerStructure.getX() - radius < x && repellerStructure.getX() + radius > x
-                    && repellerStructure.getY() - radius < y && repellerStructure.getY() + radius > y
-                    && repellerStructure.getZ() - radius < z && repellerStructure.getZ() + radius > z
-                    && repellerStructure.getWorld().getUID().equals(world.getUID())) {
-                return true;
-            }
-        }
-        return false;
-	}*/
+	}
+
+	public List<EntityType> getMonitoredEntities() {
+		return enabledEntities;
+	}
 
 }

@@ -2,27 +2,30 @@ package com.kodyhusky.cmc;
 
 import java.util.logging.Level;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.kodyhusky.cmc.listeners.EntitySpawnListener;
+import com.kodyhusky.cmc.listeners.RepellerSpawnListener;
 
 public class CompleteMobControl extends JavaPlugin {
     
     private ConfigManager config;
     private LanguageManager language;
+    private RepellerManager repeller;
     
     @Override
     public void onLoad() {
         config = new ConfigManager(this);
         language = new LanguageManager(this);
+        repeller = new RepellerManager(this);
     }
     
     @Override
     public void onEnable() {
         if (config.isLoaded() && language.isLoaded()) {
-            
+        	if (config.isFeatureEnabled("repeller-structures")) {
+        		getServer().getPluginManager().registerEvents(new RepellerSpawnListener(this), this);
+        	}
             
             // NEED COMPLETED
-        	getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
-            
+        	
             
         } else {
             log(Level.SEVERE, "An error occured during while loading the plugin configuration. Plugin will be disabled.", null);
@@ -34,6 +37,15 @@ public class CompleteMobControl extends JavaPlugin {
         if (config.isDebugEnabled()) {
             getLogger().log(Level.FINE, "DEBUG: {0}", message);
         }
+    }
+    
+    /**
+     * Gets the initialized RepellerManager class.
+     * 
+     * @return RepellerManager
+     */
+    public RepellerManager getRepellerManager() {
+        return repeller;
     }
     
     /**

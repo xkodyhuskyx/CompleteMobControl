@@ -8,12 +8,13 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 
 import com.kodyhusky.cmc.CompleteMobControl;
+import com.kodyhusky.cmc.objects.EntityRepeller;
 
-public class EntitySpawnListener implements Listener {
+public class RepellerSpawnListener implements Listener {
 	
 	private CompleteMobControl plugin;
 	
-	public EntitySpawnListener(CompleteMobControl plugin) {
+	public RepellerSpawnListener(CompleteMobControl plugin) {
 		this.plugin = plugin;
 	}
 	
@@ -24,11 +25,11 @@ public class EntitySpawnListener implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
     public void onEntitySpawn(CreatureSpawnEvent event) {
-		if (plugin.getConfigManager().isFeatureEnabled("repeller-structures")) {
-			if (event.getEntity() instanceof Creature) {
-				/*EntityRepeller repeller = plugin.getRepellerManager().getRepellerByLocation(event.getLocation());*/
-				
-			}
-		}
+		if (event.getEntity() instanceof Creature && plugin.getRepellerManager()
+				.getMonitoredEntities().contains(event.getEntityType())) {
+			EntityRepeller repeller = plugin.getRepellerManager().getRepellerByLocation(event.getLocation());
+			if (repeller.getEntitiesToRemove().contains(event.getEntityType())) {
+				event.setCancelled(true);
+		}}
 	}
 }
