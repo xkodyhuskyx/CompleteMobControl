@@ -52,6 +52,12 @@ public class CompleteMobControl extends JavaPlugin {
     public void onEnable() {
         console = getServer().getConsoleSender();
         DLT = getServer().getScheduler().scheduleSyncDelayedTask(this, new DelayLoadRunnable(this));
+        double d = 5;
+        float f = (float) 3;
+        getServer().getLogger().info("Double Test + : " + (d + f));
+        getServer().getLogger().info("Double Test - : " + (d - f));
+        getServer().getLogger().info("Double Test * : " + (d * f));
+        getServer().getLogger().info("Double Test / : " + (d / f));
     }
 
     public void onDisable() {

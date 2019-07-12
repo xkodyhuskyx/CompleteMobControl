@@ -31,7 +31,7 @@ public class CompleteMobControl extends JavaPlugin {
     }
     
     public void debug(String message) {
-        if (config.debugEnabled()) {
+        if (config.isDebugEnabled()) {
             getLogger().log(Level.FINE, "DEBUG: {0}", message);
         }
     }

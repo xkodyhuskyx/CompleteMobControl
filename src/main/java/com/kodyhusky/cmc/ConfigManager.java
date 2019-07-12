@@ -77,7 +77,11 @@ public class ConfigManager {
         return config != null;
     }
     
-    public boolean debugEnabled() {
+    public boolean isDebugEnabled() {
         return config.getBoolean("debug", false);
+    }
+    
+    public boolean isFeatureEnabled(String featureID) {
+    	return config.getBoolean(featureID, true);
     }
 }
