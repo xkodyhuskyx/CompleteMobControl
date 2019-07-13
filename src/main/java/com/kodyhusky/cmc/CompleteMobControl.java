@@ -8,19 +8,19 @@ public class CompleteMobControl extends JavaPlugin {
     
     private ConfigManager config;
     private LanguageManager language;
-    private RepellerManager repeller;
+    private RepellerManager repeller = null;
     
     @Override
     public void onLoad() {
         config = new ConfigManager(this);
         language = new LanguageManager(this);
-        repeller = new RepellerManager(this);
     }
     
     @Override
     public void onEnable() {
         if (config.isLoaded() && language.isLoaded()) {
         	if (config.isFeatureEnabled("repeller-structures")) {
+        		repeller = new RepellerManager(this);
         		getServer().getPluginManager().registerEvents(new RepellerSpawnListener(this), this);
         	}
             

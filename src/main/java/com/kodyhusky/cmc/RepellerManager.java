@@ -2,6 +2,7 @@ package com.kodyhusky.cmc;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -11,17 +12,32 @@ import com.kodyhusky.cmc.objects.EntityRepeller;
 public class RepellerManager {
 	
 	private CompleteMobControl plugin;
-	private HashMap<Float,EntityRepeller> loadedRepellers;
-	private List<EntityType> enabledEntities;
 	
-	// Pitch = Repeller ID | Yaw = Radius
-	private List<Location> enabledRepellerLocations;
+	private HashMap<Location,EntityRepeller> activeRepellers;
+	
 	
 	public RepellerManager(CompleteMobControl plugin) {
 		this.plugin = plugin;
 	}
 	
+	
 	public EntityRepeller getRepellerByLocation(Location location) {
+		
+		
+		activeRepellers.forEach((key,value) -> {
+			
+		});
+		
+		return null;
+	}
+	
+	
+	
+	public EntityRepeller getRepellerByLocation2(Location location) {
+		
+		
+		
+		
 		for (Location repellerLocation : enabledRepellerLocations) {
 			if (repellerLocation.getWorld().getUID().equals(location.getWorld().getUID()) && 
 					repellerLocation.getX() - repellerLocation.getYaw() < location.getX() &&
