@@ -84,4 +84,9 @@ public class ConfigManager {
     public boolean isFeatureEnabled(String featureID) {
     	return config.getBoolean(featureID, true);
     }
+
+	public boolean removeCustomNamedMobs() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

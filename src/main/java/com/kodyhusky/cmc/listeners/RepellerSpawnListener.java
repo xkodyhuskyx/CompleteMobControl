@@ -1,6 +1,7 @@
 package com.kodyhusky.cmc.listeners;
 
 import org.bukkit.entity.Creature;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -24,7 +25,7 @@ public class RepellerSpawnListener implements Listener {
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntitySpawn(CreatureSpawnEvent event) {
+    public void onEntitySpawn2(CreatureSpawnEvent event) {
 		if (event.getEntity() instanceof Creature && plugin.getRepellerManager()
 				.getMonitoredEntities().contains(event.getEntityType())) {
 			EntityRepeller repeller = plugin.getRepellerManager().getRepellerByLocation(event.getLocation());
@@ -32,4 +33,14 @@ public class RepellerSpawnListener implements Listener {
 				event.setCancelled(true);
 		}}
 	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onEntitySpawn(CreatureSpawnEvent event) {
+		if (event.getEntity() instanceof LivingEntity) {
+			
+		}
+		
+		if event.getEntity().isT
+	}
+	
 }
