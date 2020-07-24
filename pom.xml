@@ -8,7 +8,7 @@
     <name>CompleteMobControl</name>
     <description>A complete mob and entity management plugin for your craftbukkit based server.</description>
     <url>https://dev.bukkit.org/projects/completemobcontrol</url>
-    <version>2.1.0-D1</version>
+    <version>3.0.0</version>
     <organization>
         <name>Kody's Market</name>
         <url>http://www.kodysmarket.com/</url>
@@ -47,9 +47,9 @@
     </repositories>
     <dependencies>
         <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>1.14.3-R0.1-SNAPSHOT</version>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.16.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
             <optional>false</optional>
         </dependency>
