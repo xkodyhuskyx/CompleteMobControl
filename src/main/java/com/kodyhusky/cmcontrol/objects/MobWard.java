@@ -5,10 +5,23 @@
  */
 package com.kodyhusky.cmcontrol.objects;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Kody
  */
 public class MobWard {
+    
+    private ArrayList<String> flags;
+    private int size = 0;
+    
+    public boolean isFlagged(String flag) {
+        return flags.contains(flag);
+    }
+    
+    public int getSize() {
+        return size;
+    }
     
 }
