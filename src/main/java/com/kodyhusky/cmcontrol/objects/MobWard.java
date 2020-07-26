@@ -6,6 +6,7 @@
 package com.kodyhusky.cmcontrol.objects;
 
 import java.util.ArrayList;
+import org.bukkit.entity.EntityType;
 
 /**
  *
@@ -22,6 +23,12 @@ public class MobWard {
     
     public int getSize() {
         return size;
+    }
+    
+    
+    public boolean isSpawnAllowed(EntityType type) {
+        
+        return false; 
     }
     
 }
