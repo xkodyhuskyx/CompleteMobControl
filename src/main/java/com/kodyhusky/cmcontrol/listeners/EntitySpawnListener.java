@@ -5,6 +5,7 @@
  */
 package com.kodyhusky.cmcontrol.listeners;
 
+import com.kodyhusky.cmcontrol.CompleteMobControl;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -16,10 +17,18 @@ import org.bukkit.event.entity.EntitySpawnEvent;
  */
 public class EntitySpawnListener implements Listener {
     
+    CompleteMobControl plugin;
+    
+    public EntitySpawnListener(CompleteMobControl plugin) {
+        this.plugin = plugin;
+    }
+    
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntitySpawn(EntitySpawnEvent event) {
-        // Check Globally Disabled Mobs
-        // Check World Disabled Mobs
-        
+        if (plugin.getWardManager().isMWSpawnAllowed(event.getEntity())) {
+            plugin.getServer().broadcastMessage("Entity Blocked: " + 
+                    event.getLocation().getX() + " " + event.getLocation().getZ());
+            event.setCancelled(true);
+        }
     }
 }

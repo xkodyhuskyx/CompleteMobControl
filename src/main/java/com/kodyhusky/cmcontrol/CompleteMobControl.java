@@ -1,5 +1,6 @@
 package com.kodyhusky.cmcontrol;
 
+import com.kodyhusky.cmcontrol.listeners.EntitySpawnListener;
 import com.kodyhusky.cmcontrol.managers.MobWardManager;
 import com.kodyhusky.cmcontrol.managers.ConfigManager;
 import java.util.logging.Level;
@@ -21,6 +22,8 @@ public class CompleteMobControl extends JavaPlugin {
         config = new ConfigManager(this);
         wards = new MobWardManager(this);
         
+        wards.addDebugMobWard();
+        getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
         
         
         

@@ -14,8 +14,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 name: CompleteMobControl
-main: com.kodyhusky.cmc.old.CompleteMobControl
-version: 2.1.0 D1
+main: com.kodyhusky.cmcontrol.CompleteMobControl
+version: 3.0.0
 author: xkodyhuskyx
 api-version: 1.13
 description: CMC is a complete mob control option for your server!

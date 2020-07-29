@@ -61,7 +61,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <extensions>false</extensions>
-                <version>3.1.0</version>
+                <version>3.2.0</version>
             </plugin>
             <plugin>
                 <inherited>true</inherited>
@@ -108,7 +108,7 @@
                 <directory>${basedir}/src/main/resources/</directory>
                 <includes>
                     <include>plugin.yml</include>
-                    <include>lang/english.yml</include>
+                    <include>config.yml</include>
                 </includes>
             </resource>
         </resources>

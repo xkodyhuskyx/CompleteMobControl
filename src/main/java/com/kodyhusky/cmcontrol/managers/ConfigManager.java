@@ -2,7 +2,10 @@ package com.kodyhusky.cmcontrol.managers;
 
 import com.kodyhusky.cmcontrol.CompleteMobControl;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Monster;
 
 /**
  * Manages all configuration values and storage.
@@ -13,6 +16,8 @@ public class ConfigManager {
 
     private CompleteMobControl plugin;
     private FileConfiguration config;
+    
+    private ArrayList<String> passive;
 
     public ConfigManager(CompleteMobControl plugin) {
 
@@ -30,6 +35,7 @@ public class ConfigManager {
         }
         plugin.logToConsole("Config data loaded sucessfully.");
     }
+    
 
     public boolean debugEnabled() {return config.getBoolean("debug", false);}
 }
