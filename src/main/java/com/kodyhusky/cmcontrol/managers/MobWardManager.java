@@ -53,12 +53,8 @@ public class MobWardManager {
         
         int rtype = 1;
         
-        
         // Cube Type
         if (rtype == 0) {
-            
-            
-            
         }
         // Sphere Radius Type
         if (rtype == 1) {
@@ -70,9 +66,9 @@ public class MobWardManager {
                     if ((ward.hasOption("SEARCH_BELOW") && entity.getLocation().getY() < mwloc.getY()) ||
                             (ward.hasOption("SEARCH_ABOVE") && entity.getLocation().getY() >= mwloc.getY())) {
                         if (ward.hasOption("BLACKLIST") || ward.hasOption("WHITELIST")) {
-                            return ward.isEntityAllowed(entity);
+                            return !ward.isEntityAllowed(entity);
                         } else {
-                            return isEntityAllowed(entity);
+                            return !isEntityAllowed(entity);
                         }
                     }
                 }
