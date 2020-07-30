@@ -6,6 +6,7 @@
 package com.kodyhusky.cmcontrol.objects;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -29,7 +30,6 @@ public class MobWard {
     private ArrayList<UUID> managers;
     private ArrayList<String> options;
     private ArrayList<String> customlist;
-    private boolean debug;
 
     /**
      * Creates an object containing all data for a given MobWard.
@@ -44,11 +44,10 @@ public class MobWard {
      * @param managers List of managers UUID's
      * @param options Options
      * @param customlist Custom entity list
-     * @param debug Debug mode
      */
     public MobWard(String name, UUID uuid, String type, Location baseblock,
             Location powerblock, UUID owner, ArrayList<UUID> managers,
-            ArrayList<String> options, ArrayList<String> customlist, boolean debug) {
+            ArrayList<String> options, ArrayList<String> customlist) {
         this.name = name;
         this.uuid = UUID.randomUUID();
         this.type = type;
@@ -57,7 +56,6 @@ public class MobWard {
         this.owner = owner;
         this.managers = managers;
         this.options = options;
-        this.debug = debug;
     }
     
     /**
@@ -76,7 +74,7 @@ public class MobWard {
     /**
      * Gets if the specified option has been set.
      * @param option Option to check
-     * @return boolean - has option
+     * @return Boolean - has option
      */
     public boolean hasOption(String option) {
         return this.options.contains(option);
@@ -108,28 +106,4 @@ public class MobWard {
         this.customlist = new ArrayList<>();
         if (!customlist.isEmpty()) {this.customlist.addAll(customlist);}
     }
-    
-    /**
-     * For development purposes only! May spam the console and global chat!
-     * @return Boolean - debug mode enabled
-     */
-    public boolean isDebugEnabled() {
-        return this.debug;
-    }
-    
-    /**
-     * For development purposes only! May spam the console and global chat!
-     * @param debug debug mode
-     */
-    public void setDebugMode(Boolean debug) {
-        this.debug = debug;
-    }
-    
-    
-    
-    
-    
-    
-    
-    
 }

@@ -2,11 +2,11 @@ package com.kodyhusky.cmcontrol.managers;
 
 import com.kodyhusky.cmcontrol.CompleteMobControl;
 import com.kodyhusky.cmcontrol.objects.MobWard;
+import com.kodyhusky.cmcontrol.utils.Pair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import javafx.util.Pair;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -37,10 +37,10 @@ public class MobWardManager {
         World world = plugin.getServer().getWorld("world");
         Location noloc = new Location(world,0,80,0);
         MobWard debugward = new MobWard("debug",uuid,"AIR",noloc,noloc,puuid,
-                (new ArrayList<>()),(new ArrayList<>()),(new ArrayList<>()),true);
+                (new ArrayList<>()),(new ArrayList<>()),(new ArrayList<>()));
         mobwards.put(uuid, debugward);
         @SuppressWarnings("unchecked")
-        Pair<Location,Integer> pair = (new Pair<>(noloc, 16));
+        Pair<Location,Integer> pair = (new Pair(noloc, 16));
         activemw.put(uuid, pair);
     }
     // =========================================================================
