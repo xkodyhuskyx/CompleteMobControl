@@ -6,9 +6,6 @@
 package com.kodyhusky.cmcontrol.listeners;
 
 import com.kodyhusky.cmcontrol.CompleteMobControl;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -29,15 +26,8 @@ public class EntitySpawnListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntitySpawn(EntitySpawnEvent event) {
         
-        World world = plugin.getServer().getWorld("world");
-        Location location = new Location(world,0,64,0);
-        Double radius = 10.00;
-        
-        if (event.getEntityType() == EntityType.ZOMBIE) {
-            plugin.getServer().broadcastMessage("Entity Spawned: " + event.getLocation().getX() + " " + event.getLocation().getZ());
-            if (event.getLocation().distanceSquared(location) <= radius * radius) {
-                plugin.getServer().broadcastMessage("Entity In Radius: " + event.getLocation().getX() + " " + event.getLocation().getZ());
-            }
+        if (plugin.getWardManager().isSpawnBlocked(event.getEntity())) {
+            event.setCancelled(true);
         }
     }
 }

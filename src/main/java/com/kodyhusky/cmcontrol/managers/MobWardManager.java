@@ -4,6 +4,7 @@ import com.kodyhusky.cmcontrol.CompleteMobControl;
 import com.kodyhusky.cmcontrol.objects.MobWard;
 import com.kodyhusky.cmcontrol.utils.Pair;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -33,11 +34,12 @@ public class MobWardManager {
     // =========================================================================
     public void addDebugMobWard() {
         UUID uuid = UUID.randomUUID();
-        UUID puuid = plugin.getServer().getPlayer("klimaxthefox").getUniqueId();
+        UUID puuid = UUID.randomUUID();
         World world = plugin.getServer().getWorld("world");
-        Location noloc = new Location(world,0,80,0);
+        Location noloc = new Location(world,0,64,0);
+        ArrayList<String> options = new ArrayList(Arrays.asList("SEARCH_BELOW","SEARCH_ABOVE"));
         MobWard debugward = new MobWard("debug",uuid,"AIR",noloc,noloc,puuid,
-                (new ArrayList<>()),(new ArrayList<>()),(new ArrayList<>()));
+                (new ArrayList<>()),options,(new ArrayList<>()));
         mobwards.put(uuid, debugward);
         @SuppressWarnings("unchecked")
         Pair<Location,Integer> pair = (new Pair(noloc, 16));
@@ -46,7 +48,19 @@ public class MobWardManager {
     // =========================================================================
     
     public boolean isEntityAllowed(Entity entity) {
-        return false;
+        
+        
+        
+        
+        
+        
+        if (options.contains("BLACKLIST")) {
+            return !customlist.contains(entity.getType().toString().toUpperCase());
+        }
+        if (options.contains("WHITELIST")) {
+            return customlist.contains(entity.getType().toString().toUpperCase());
+        }
+        return true;
     }
 
     public boolean isSpawnBlocked(Entity entity) {
@@ -62,12 +76,14 @@ public class MobWardManager {
                 Location mwloc = entry.getValue().getKey();
                 int radius = entry.getValue().getValue();
                 if (entity.getLocation().distanceSquared(mwloc) <= radius * radius) {
+                    plugin.getServer().broadcastMessage("ENTITY IN RADIUS: " + entity.getName()); // DEBUG
                     MobWard ward = mobwards.get(entry.getKey());
                     if ((ward.hasOption("SEARCH_BELOW") && entity.getLocation().getY() < mwloc.getY()) ||
                             (ward.hasOption("SEARCH_ABOVE") && entity.getLocation().getY() >= mwloc.getY())) {
                         if (ward.hasOption("BLACKLIST") || ward.hasOption("WHITELIST")) {
                             return !ward.isEntityAllowed(entity);
                         } else {
+                            plugin.getServer().broadcastMessage("ENTITY SPAWN BLOCKED: " + entity.getName()); // DEBUG
                             return !isEntityAllowed(entity);
                         }
                     }
