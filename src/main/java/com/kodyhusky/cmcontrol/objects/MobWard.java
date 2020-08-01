@@ -35,6 +35,7 @@ import org.bukkit.Material;
 public class MobWard {
 
     private final UUID uuid;
+    private boolean active;
     private final Material material;
     private final Location location;
     private Location redstone;
@@ -52,6 +53,7 @@ public class MobWard {
      * initialization.
      *
      * @param uuid Unique Identifier
+     * @param active is active
      * @param material
      * @param location
      * @param redstone
@@ -62,10 +64,11 @@ public class MobWard {
      * @param checkmode
      * @param customlist Custom entity list
      */
-    public MobWard(UUID uuid, Material material, Location location,
+    public MobWard(UUID uuid, Boolean active, Material material, Location location,
             Location redstone, UUID owner, HashMap<UUID, List<String>> managers,
             int checklevel, List<String> denytypes, int checkmode, List<String> customlist) {
         this.uuid = uuid;
+        this.active = active;
         this.material = material;
         this.location = location;
         this.redstone = redstone;
@@ -78,18 +81,19 @@ public class MobWard {
     }
 
     /**
-     * Used to create a new MobWard object.
-     * <br><br>Note: The Material, and Location cannot be changed after
-     * initialization.
+     * Used to create a new MobWard object.<br><br>Note: The Material, and
+     * Location cannot be changed after initialization.
      *
+     * @param active
      * @param material
      * @param location
      * @param owner Owners UUID
      * @param checklevel
      * @param denytypes
      */
-    public MobWard(Material material, Location location, UUID owner, int checklevel, List<String> denytypes) {
+    public MobWard(Boolean active, Material material, Location location, UUID owner, int checklevel, List<String> denytypes) {
         this.uuid = UUID.randomUUID();
+        this.active = active;
         this.material = material;
         this.location = location;
         this.redstone = null;
@@ -351,6 +355,24 @@ public class MobWard {
         if (customlist.contains(name)) {
             customlist.remove(name);
         }
+    }
+
+    /**
+     * Gets if the MobWard is currently active.
+     *
+     * @return Boolean
+     */
+    public boolean isActive() {
+        return active;
+    }
+
+    /**
+     * Sets the MobWards active status..
+     *
+     * @param active is active
+     */
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
 }

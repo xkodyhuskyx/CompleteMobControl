@@ -18,14 +18,20 @@ package com.kodyhusky.cmcontrol.managers;
 
 import com.kodyhusky.cmcontrol.CompleteMobControl;
 import com.kodyhusky.cmcontrol.objects.MobWard;
-import com.kodyhusky.cmcontrol.utils.Pair;
+import com.kodyhusky.cmcontrol.util.Pair;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 
 /**
@@ -35,77 +41,140 @@ import org.bukkit.entity.Entity;
 public class MobWardManager {
 
     private final CompleteMobControl plugin;
-    
-    private HashMap<UUID, MobWard> mobwards;
-    private HashMap<UUID,Pair<Location,Integer>> activemw;
 
     public MobWardManager(CompleteMobControl plugin) {
-        mobwards = new HashMap<>();
-        activemw = new HashMap<>();
         this.plugin = plugin;
     }
-    
-    // =========================================================================
-    // TEMPORARY TESTING FUNCTION (world,0,80,0) default
-    // =========================================================================
-    public void addDebugMobWard() {
-        UUID uuid = UUID.randomUUID();
-        UUID puuid = UUID.randomUUID();
-        World world = plugin.getServer().getWorld("world");
-        Location noloc = new Location(world,0,64,0);
-        ArrayList<String> options = new ArrayList(Arrays.asList("SEARCH_BELOW","SEARCH_ABOVE"));
-        MobWard debugward = new MobWard("debug",uuid,"AIR",noloc,noloc,puuid,
-                (new ArrayList<>()),options,(new ArrayList<>()));
-        mobwards.put(uuid, debugward);
-        @SuppressWarnings("unchecked")
-        Pair<Location,Integer> pair = (new Pair(noloc, 16));
-        activemw.put(uuid, pair);
+
+    private HashMap<UUID, MobWard> allwards;
+    private HashMap<UUID, Pair<Location, Integer>> activewards;
+    private HashMap<Material, Integer> materials;
+    private HashMap<Location, UUID> powerblocks;
+    private HashMap<String, String> entitytypes;
+    private int radiustype;
+
+    public boolean load() {
+        
+        
+        
+        
+        plugin.logToConsole("Loading MobWard configuration files...");
+        File warddir = new File(plugin.getDataFolder(), "wards");
+        File[] files = warddir.listFiles((File dir, String name) -> name.toLowerCase().endsWith(".yml"));
+        for (File file : files) {
+            FileConfiguration wardconfig = new YamlConfiguration();
+                try {
+                    wardconfig.load(file);
+                    UUID uuid = UUID.fromString(wardconfig.getString("uuid"));
+                    Material material = Material.getMaterial(wardconfig.getString("material"));
+                    World world = plugin.getServer().getWorld(UUID.fromString(wardconfig.getString("location.world")));
+                    Location location = new Location(world, wardconfig.getInt("location.x"), wardconfig.getInt("location.y"), wardconfig.getInt("location.z"));
+                    Location powerblock = new Location(world, wardconfig.getInt("powerblock.x"), wardconfig.getInt("powerblock.y"), wardconfig.getInt("powerblock.z"));
+                    UUID owner = UUID.fromString(wardconfig.getString("owner"));
+                    HashMap<UUID, List<String>> managers = new HashMap<>();
+                    int checklevel = wardconfig.getInt("checklevel");
+                    List<String> denytypes = new ArrayList<>();
+                    int checkmode = wardconfig.getInt("checkmode");
+                    List<String> customlist = new ArrayList<>();
+                    boolean active = wardconfig.getBoolean("active");
+                    
+                    MobWard ward = new MobWard(uuid,active,material,location,powerblock,owner,managers,checklevel,denytypes,checkmode,customlist);
+                    allwards.put(uuid, ward);
+                    if (active) {activewards.put(uuid, new Pair(location, materials.get(ward.getMaterial())));} // Must Load Materials First!!!!
+                    
+                } catch (IOException | InvalidConfigurationException ex) {
+                    plugin.logToConsole("WARN: Unable to load MobWard file (" + file.getName() + ")! Skipping...");
+                }
+            
+        }
+        
+        
+        
+        
+        
+        
+        allwards = new HashMap<>();
+        activewards = new HashMap<>();
+        materials = new HashMap<>();
+        powerblocks = new HashMap<>();
+        entitytypes = new HashMap<>();
+        return false;
     }
-    // =========================================================================
     
-    public boolean isEntityAllowed(Entity entity) {
-        
-        
-        
-        
-        
-        
-        if (options.contains("BLACKLIST")) {
-            return !customlist.contains(entity.getType().toString().toUpperCase());
+    /**
+     * Sets the active status of a MobWard.
+     * @param uuid MobWard UUID
+     * @param active is active
+     */
+    public void setWardActive(UUID uuid, Boolean active) {
+        MobWard ward = allwards.get(uuid);
+        ward.setActive(active);
+        allwards.replace(uuid, ward);
+        if (active) {
+            if (!activewards.containsKey(uuid)) {
+                activewards.put(uuid, new Pair(ward.getLocation(),materials.get(ward.getMaterial())));
+            }
+        } else {
+            if (activewards.containsKey(uuid)) {
+                activewards.remove(uuid);
+            }
         }
-        if (options.contains("WHITELIST")) {
-            return customlist.contains(entity.getType().toString().toUpperCase());
-        }
-        return true;
     }
 
-    public boolean isSpawnBlocked(Entity entity) {
-        
-        int rtype = 1;
-        
-        // Cube Type
-        if (rtype == 0) {
+    /**
+     * Checks if a Entity is within the radius of a MobWard.
+     *
+     * @param entity Entity location
+     * @param ward Ward Location
+     * @param radius Radius
+     * @return Boolean
+     */
+    private boolean isInRadius(Location entity, Location ward, Integer radius) {
+        if (radiustype == 0) {
+            double x1 = entity.getX();
+            double y1 = entity.getY();
+            double z1 = entity.getZ();
+            double x2 = ward.getX();
+            double y2 = ward.getY();
+            double z2 = ward.getZ();
+            return x1 >= x2 - radius && x1 <= x2 + radius && y1 >= y2 - radius && y1 <= y2 + radius && z1 >= z2 - radius && z1 <= z2 + radius;
         }
-        // Sphere Radius Type
-        if (rtype == 1) {
-            for (Map.Entry<UUID,Pair<Location,Integer>> entry : activemw.entrySet()) {
-                Location mwloc = entry.getValue().getKey();
-                int radius = entry.getValue().getValue();
-                if (entity.getLocation().distanceSquared(mwloc) <= radius * radius) {
-                    plugin.getServer().broadcastMessage("ENTITY IN RADIUS: " + entity.getName()); // DEBUG
-                    MobWard ward = mobwards.get(entry.getKey());
-                    if ((ward.hasOption("SEARCH_BELOW") && entity.getLocation().getY() < mwloc.getY()) ||
-                            (ward.hasOption("SEARCH_ABOVE") && entity.getLocation().getY() >= mwloc.getY())) {
-                        if (ward.hasOption("BLACKLIST") || ward.hasOption("WHITELIST")) {
-                            return !ward.isEntityAllowed(entity);
-                        } else {
-                            plugin.getServer().broadcastMessage("ENTITY SPAWN BLOCKED: " + entity.getName()); // DEBUG
-                            return !isEntityAllowed(entity);
-                        }
+        return (entity.distanceSquared(ward) <= radius * radius);
+    }
+
+    /**
+     * Checks if an entity spawn event should be cancelled.
+     *
+     * @param entity Spawning entity
+     * @return Boolean
+     */
+    public boolean isSpawnBlocked(Entity entity) {
+        for (Map.Entry<UUID, Pair<Location, Integer>> entry : activewards.entrySet()) {
+            Location wardlocation = entry.getValue().getKey();
+            int radius = entry.getValue().getValue();
+            if (isInRadius(entity.getLocation(), wardlocation, radius)) {
+                MobWard ward = allwards.get(entry.getKey());
+                double y1 = entity.getLocation().getY();
+                double y2 = ward.getLocation().getY();
+                if (ward.getCheckLevel() == 0 || ward.getCheckLevel() == 1 && y1 >= y2 || ward.getCheckLevel() == -1 && y1 < y2) {
+                    if (ward.getCheckMode() != 0) {
+                        return ward.isEntityDenied(entity.getName().toUpperCase());
+                    } else {
+                        return ward.getEntityTypeDenied(entitytypes.get(entity.getName().toUpperCase()));
                     }
                 }
             }
         }
         return false;
+    }
+
+    /**
+     * Gets the radius value for the material.
+     *
+     * @param material Material
+     * @return Integer
+     */
+    public int getMaterialRadius(Material material) {
+        return materials.get(material);
     }
 }
