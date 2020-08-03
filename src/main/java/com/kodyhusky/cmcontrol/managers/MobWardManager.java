@@ -67,6 +67,7 @@ public class MobWardManager {
                     wardconfig.load(file);
                     UUID uuid = UUID.fromString(wardconfig.getString("uuid"));
                     Material material = Material.getMaterial(wardconfig.getString("material"));
+                    
                     World world = plugin.getServer().getWorld(UUID.fromString(wardconfig.getString("location.world")));
                     Location location = new Location(world, wardconfig.getInt("location.x"), wardconfig.getInt("location.y"), wardconfig.getInt("location.z"));
                     Location powerblock = new Location(world, wardconfig.getInt("powerblock.x"), wardconfig.getInt("powerblock.y"), wardconfig.getInt("powerblock.z"));
@@ -93,12 +94,21 @@ public class MobWardManager {
         
         
         
+        
         allwards = new HashMap<>();
         activewards = new HashMap<>();
         materials = new HashMap<>();
         powerblocks = new HashMap<>();
         entitytypes = new HashMap<>();
         return false;
+    }
+    
+    public boolean verifyWardConfig(YamlConfiguration config) {
+        boolean isvalid = true;
+        if (config.contains("uuid")) {isvalid = !config.getString("uuid").matches("^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$");}
+        if (config.contains("material")) {isvalid = Material.getMaterial(config.getString("material").toUpperCase()) != null;}
+        
+        return isvalid;
     }
     
     /**
