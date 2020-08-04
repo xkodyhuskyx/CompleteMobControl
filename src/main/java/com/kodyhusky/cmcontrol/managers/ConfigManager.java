@@ -17,17 +17,18 @@
 package com.kodyhusky.cmcontrol.managers;
 
 import com.kodyhusky.cmcontrol.CompleteMobControl;
+import com.kodyhusky.cmcontrol.util.Pair;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Set;
+import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 
 /**
  * Manages all configuration values and storage.
@@ -38,9 +39,8 @@ public class ConfigManager {
 
     private CompleteMobControl plugin;
     private FileConfiguration config;
+    private HashMap<String, List<String>> entitygroups = new HashMap<>();
     
-    private HashMap<String,Integer> entity_types;
-    private List<String> ward_options;
 
     public ConfigManager(CompleteMobControl plugin) {
 
@@ -53,50 +53,97 @@ public class ConfigManager {
             try {
                 plugin.saveDefaultConfig();
                 config = plugin.getConfig();
-                ward_options = new ArrayList();
-                ward_options.addAll(config.getStringList("mob_ward.default_options"));
             } catch (Exception e) {
                 plugin.logToConsole("-- An error occurred while creating file (config.yml).");
                 return;
             }
         }
+        config = plugin.getConfig();
         
-        File efile = new File(plugin.getDataFolder(), "entities.yml");
-        YamlConfiguration etypes = new YamlConfiguration();
+        plugin.logToConsole("Loading entity groups...");
+        File efile = new File(plugin.getDataFolder(), "entity_groups.yml");
+        YamlConfiguration egroups = new YamlConfiguration();
         try {
-            etypes.load(efile);
-            entity_types = new HashMap<>();
-            etypes.getStringList("passive").forEach(etype -> {
-                entity_types.put(etype, 0);
-            });
-            etypes.getStringList("neutral").forEach(etype -> {
-                entity_types.put(etype, 1);
-            });
-            etypes.getStringList("hostile").forEach(etype -> {
-                entity_types.put(etype, 2);
-            });
-            etypes.getStringList("boss").forEach(etype -> {
-                entity_types.put(etype, 3);
+            egroups.load(efile);
+            egroups.getKeys(false).forEach(key -> {
+                List<String> entities = new ArrayList<>();
+                egroups.getStringList(key).forEach(entity -> {
+                    if (isValidEntityType(entity)) {
+                        entities.add(entity.toUpperCase());
+                    } else {
+                        plugin.logToConsole("WARN: Cannot identify entity (" + entity + ") listed in (config.yml).");
+                    }
+                });
+                entitygroups.put(key.toUpperCase(), entities);
             });
         } catch (IOException | InvalidConfigurationException ex) {
-            Logger.getLogger(ConfigManager.class.getName()).log(Level.SEVERE, null, ex);
+            plugin.logToConsole("WARN: Cannot load entity groups file (entity_groups.yml).");
+            plugin.getPluginLoader().disablePlugin(plugin);
         }
         plugin.logToConsole("Config data loaded sucessfully.");
     }
     
-    public int getEntityType(Entity entity) {
-        if (entity_types.containsKey(entity.getType().toString().toUpperCase())) {
-            return entity_types.get(entity.getName().toUpperCase());
-        } else {
-            plugin.logToConsole("Entity Type Not Found: " + entity.getName().toUpperCase(), true); // WARN CONSOLE OF MISSING ENTITY RECORD
+    private Boolean isValidEntityType(String type) {
+        try {
+            EntityType etype = EntityType.valueOf(type.toUpperCase());
+        } catch (Exception e) {
+            return false;
         }
-        return 2; // DEFAULT TO HOSTILE
+        return true;
     }
     
-    public boolean isWardOptionSet(String option) {
-        return ward_options.contains(option);
+    public HashMap<String, List<String>> getEntityGroups() {
+        return entitygroups;
     }
+    
+    
     
 
-    public boolean debugEnabled() {return config.getBoolean("debug", false);}
+    public boolean debugEnabled() {
+        return config.getBoolean("debug", false);
+    }
+
+    @SuppressWarnings("null")
+    public HashMap<Material, Pair<String,Integer>> getMobWardTypes() {
+        if (config.isConfigurationSection("mobward.types")) {
+            Set<String> types = config.getConfigurationSection("mobward.types").getKeys(false);
+            if (!types.isEmpty()) {
+                HashMap<Material,Pair<String,Integer>> newtype = new HashMap<>();
+                types.forEach(type -> {
+                    String blocktype = config.getString("mobward.types." + type + ".material", "is-invalid");
+                    int radius = config.getInt("mobward.types." + type + ".radius", 1000000000);
+                    if (radius != 1000000000 || !"is-invalid".equals(blocktype)) {
+                        Material material = Material.getMaterial(blocktype);
+                        if (material != null) {
+                            newtype.put(material, new Pair(type.toUpperCase(),radius));
+                        } else {
+                            plugin.logToConsole("WARN: A MobWard type contains an invalid material in (config.yml). Skipping...");
+                        }
+                    } else {
+                        plugin.logToConsole("WARN: A MobWard type contains invalid data in (config.yml). Skipping...");
+                    }
+                });
+                if (!newtype.isEmpty()) {
+                    return newtype;
+                }
+            }
+        }
+        plugin.logToConsole("WARN: No MobWard sizes listed in (config.yml). Loading defaults...");
+        HashMap<Material,Pair<String,Integer>> defaults = new HashMap<>();
+        defaults.put(Material.IRON_BLOCK, new Pair("MINI",25));
+        defaults.put(Material.GOLD_BLOCK, new Pair("SMALL",50));
+        defaults.put(Material.DIAMOND_BLOCK, new Pair("MEDIUM",75));
+        defaults.put(Material.EMERALD_BLOCK, new Pair("LARGE",100));
+        return defaults;
+    }
+
+    int getMobWardRadiusType() {
+        if (config.contains("mobward.radius_type")) {
+            String type = config.getString("mobward.radius_type");
+            if (!"SPHERE".equals(type)) {
+                return 1;
+            }
+        }
+        return 0;
+    }
 }

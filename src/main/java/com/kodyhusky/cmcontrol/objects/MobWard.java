@@ -16,6 +16,7 @@
  */
 package com.kodyhusky.cmcontrol.objects;
 
+import com.kodyhusky.cmcontrol.util.Pair;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,12 +40,11 @@ public class MobWard {
     private final Material material;
     private final Location location;
     private Location redstone;
-    private UUID owner;
-    private final HashMap<UUID, List<String>> managers;
+    private Pair<UUID,String> owner;
+    private final HashMap<UUID, Pair<String, List<String>>> managers;
     private int checklevel;
-    private List<String> denytypes;
-    private int checkmode;
-    private final List<String> customlist;
+    private int mode;
+    private final List<String> entities;
 
     /**
      * Used to create a MobWard object loaded from the plugin configuration
@@ -54,19 +54,18 @@ public class MobWard {
      *
      * @param uuid Unique Identifier
      * @param active is active
-     * @param material
-     * @param location
-     * @param redstone
-     * @param owner Owners UUID
+     * @param material .
+     * @param location .
+     * @param redstone .
+     * @param owner Owner
      * @param managers List of managers UUID's
-     * @param checklevel
-     * @param denytypes
-     * @param checkmode
-     * @param customlist Custom entity list
+     * @param checklevel .
+     * @param mode blacklist (0) or whitelist (1)
+     * @param entities Entities to check
      */
     public MobWard(UUID uuid, Boolean active, Material material, Location location,
-            Location redstone, UUID owner, HashMap<UUID, List<String>> managers,
-            int checklevel, List<String> denytypes, int checkmode, List<String> customlist) {
+            Location redstone, Pair<UUID,String> owner, HashMap<UUID, Pair<String, List<String>>> managers,
+            int checklevel, int mode, List<String> entities) {
         this.uuid = uuid;
         this.active = active;
         this.material = material;
@@ -75,23 +74,23 @@ public class MobWard {
         this.owner = owner;
         this.managers = managers;
         this.checklevel = checklevel;
-        this.denytypes = denytypes;
-        this.checkmode = checkmode;
-        this.customlist = customlist;
+        this.mode = mode;
+        this.entities = entities;
     }
 
     /**
      * Used to create a new MobWard object.<br><br>Note: The Material, and
      * Location cannot be changed after initialization.
      *
-     * @param active
-     * @param material
-     * @param location
-     * @param owner Owners UUID
-     * @param checklevel
-     * @param denytypes
+     * @param active .
+     * @param material .
+     * @param location .
+     * @param owner Owner .
+     * @param checklevel .
+     * @param mode .
+     * @param entities .
      */
-    public MobWard(Boolean active, Material material, Location location, UUID owner, int checklevel, List<String> denytypes) {
+    public MobWard(Boolean active, Material material, Location location, Pair<UUID,String> owner, int checklevel, int mode, List<String> entities) {
         this.uuid = UUID.randomUUID();
         this.active = active;
         this.material = material;
@@ -100,9 +99,8 @@ public class MobWard {
         this.owner = owner;
         this.managers = new HashMap<>();
         this.checklevel = checklevel;
-        this.denytypes = denytypes;
-        this.checkmode = 0;
-        this.customlist = new ArrayList<>();
+        this.mode = mode;
+        this.entities = new ArrayList<>();
     }
 
     /**
@@ -153,21 +151,22 @@ public class MobWard {
     }
 
     /**
-     * Get the MobWards owner UUID.
+     * Get the MobWards owner.
      *
-     * @return UUID
+     * @return Pair uuid and username pair
      */
-    public UUID getOwnerUUID() {
-        return this.uuid;
+    public Pair<UUID,String> getOwner() {
+        return this.owner;
     }
 
     /**
-     * Set the MobWards owner UUID.
+     * Set the MobWards owner.
      *
-     * @param owner - Owners UUID
+     * @param uuid - Owners UUID
+     * @param name - Owners username
      */
-    public void setOwnerUUID(UUID owner) {
-        this.owner = owner;
+    public void setOwner(UUID uuid, String name) {
+        this.owner = new Pair(uuid,name);
     }
 
     /**
@@ -192,32 +191,46 @@ public class MobWard {
      */
     public List<String> getUserOptions(UUID user) {
         if (managers.containsKey(user)) {
-            return managers.get(user);
+            return managers.get(user).getValue();
         }
         return new ArrayList<>();
     }
 
     /**
-     * Changes the options for a MobWard manager. Can also be used to add or
-     * remove a manager (0 add, -1 remove).
-     * <br><br>Options: ALL (A), USE (U), MODIFY (M), DESTROY(D)
+     * Gets a managers stored username.
+     *
+     * @param user Users UUID
+     * @return String - Users username
+     */
+    public String getManagerName(UUID user) {
+        if (managers.containsKey(user)) {
+            return managers.get(user).getKey();
+        }
+        return "Unknown";
+    }
+
+    /**
+     * Changes the options for a MobWard manager.Can also be used to add or
+     * remove a manager (0 add, -1 remove).<br><br>Options: ALL, USE, MODIFY,
+     * DESTROY
      *
      * @param manager Managers UUID
+     * @param name Managers username
      * @param option Option to modify
      * @param allow Allow option
      */
-    public void setManagerOption(UUID manager, String option, boolean allow) {
-        if (manager == owner) {
+    public void setManagerOption(UUID manager, String name, String option, boolean allow) {
+        if (manager == owner.getKey()) {
             return;
         }
         List<String> optionlist = new ArrayList<>();
-        if ("A".equals(option)) {
+        if ("ALL".equals(option)) {
             if (allow) {
-                optionlist = Arrays.asList("U", "M", "D");
+                optionlist = Arrays.asList("USE", "MODIFY", "DESTROY");
             }
         } else {
             if (managers.containsKey(manager)) {
-                optionlist = managers.get(manager);
+                optionlist = managers.get(manager).getValue();
                 if (allow && !optionlist.contains(option)) {
                     optionlist.add(option);
                 }
@@ -232,13 +245,13 @@ public class MobWard {
         }
         if (managers.containsKey(manager)) {
             if (!optionlist.isEmpty()) {
-                managers.replace(manager, optionlist);
+                managers.replace(manager, new Pair(name, optionlist));
             } else {
                 managers.remove(manager);
             }
         } else {
             if (!optionlist.isEmpty()) {
-                managers.put(manager, optionlist);
+                managers.put(manager, new Pair(name, optionlist));
             }
         }
     }
@@ -264,97 +277,57 @@ public class MobWard {
     }
 
     /**
-     * Get if an entity type is denied.
-     * <br><br>Types: PASSIVE (P), NEUTRAL (N), HOSTILE (H), BOSS (B)
-     *
-     * @param type Type to check
-     * @return Boolean
-     */
-    public Boolean getEntityTypeDenied(String type) {
-        return this.denytypes.contains(type);
-    }
-
-    /**
-     * Allow or deny an entity type.
-     * <br><br>Types: ALL (A), PASSIVE (P), NEUTRAL (N), HOSTILE (H), BOSS (B)
-     *
-     * @param type Entity type
-     * @param denied Is denied
-     */
-    public void setEntityTypeDenied(String type, boolean denied) {
-        List<String> deniedtypes = new ArrayList<>();
-        if ("A".equals(type)) {
-            if (denied) {
-                deniedtypes.addAll(Arrays.asList("P", "N", "H", "B"));
-            }
-        } else {
-            deniedtypes.addAll(denytypes);
-            if (deniedtypes.contains(type) && !denied) {
-                deniedtypes.remove(type);
-            }
-        }
-        if (!deniedtypes.isEmpty()) {
-            this.denytypes = deniedtypes;
-        } else {
-            denytypes = new ArrayList<>();
-        }
-    }
-
-    /**
      * Get the MobWard check mode.
-     * <br><br>Levels: BLACKLIST (-1), NORMAL (0), WHITELIST (1)
+     * <br><br>Levels: BLACKLIST (0), WHITELIST (1)
      *
      * @return int
      */
-    public int getCheckMode() {
-        return this.checkmode;
+    public int getMode() {
+        return this.mode;
     }
 
     /**
      * Set the MobWard check mode.
-     * <br><br>Levels: BLACKLIST (-1), NORMAL (0), WHITELIST (1)
+     * <br><br>Levels: BLACKLIST (0), WHITELIST (1)
      *
-     * @param checkmode mode
+     * @param mode blacklist (0) or whitelist (1)
      */
-    public void setCheckMode(int checkmode) {
-        this.checkmode = checkmode;
+    public void setMode(int mode) {
+        this.mode = mode;
     }
 
     /**
-     * Check is an entity spawn is denied when blacklist or whitelist mode is
-     * enabled.
-     * <br><br>Note: Only us this if getCheckMode() returns -1 or 1!
+     * Returns the list of entities monitored by this MobWard.
      *
-     * @param name Entity name (ALL UPPERCASE)
-     * @return Boolean
+     * @return List - list of entities
      */
-    public Boolean isEntityDenied(String name) {
-        if (checkmode == -1 && customlist.contains(name)) {
-            return true;
-        }
-        return checkmode == 1 && !customlist.contains(name);
+    public List<String> getEntityList() {
+        return entities;
     }
 
     /**
-     * Adds an entity to the black/whitelist.
+     * Adds a group or entity to the black/whitelist.
      *
-     * @param name Entity name (ALL UPPERCASE)
+     * @param type entity or group name (ALL UPPERCASE)
      */
-    public void addCustomEntity(String name) {
-        if (!customlist.contains(name)) {
-            customlist.add(name);
+    public void addEntity(String type) {
+        if (!entities.contains(type) && !type.contains("!")) {
+            entities.add(type);
+            entities.remove("!" + type);
+        }
+        if (!entities.contains(type) && type.contains("!")) {
+            entities.add(type);
+            entities.remove(type.replace("!", ""));
         }
     }
 
     /**
-     * Removes an entity from the black/whitelist.
+     * Removes a group or entity from the black/whitelist.
      *
-     * @param name Entity name (ALL UPPERCASE)
+     * @param type entity or group name (ALL UPPERCASE)
      */
-    public void removeCustomEntity(String name) {
-        if (customlist.contains(name)) {
-            customlist.remove(name);
-        }
+    public void removeEntity(String type) {
+        entities.remove(type);
     }
 
     /**

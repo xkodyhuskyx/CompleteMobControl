@@ -1,5 +1,22 @@
-mob_ward:
-    default_options:
-        - "CHECK_ABOVE"
-        - "CHECK_BELOW"
-        - "REPEL_HOSTILE"
+mobward:
+    radius_type: SPHERE
+    types:
+        "mini":
+            material: IRON_BLOCK
+            radius: 25
+        "small":
+            material: GOLD_BLOCK
+            radius: 50
+        "medium":
+            material: DIAMOND_BLOCK
+            radius: 75
+        "large":
+            material: EMERALD_BLOCK
+            radius: 100
+    defaults:
+        active: true
+        check_level: ALL
+        mode: BLACKLIST
+        entities:
+            - HOSTILE
+        

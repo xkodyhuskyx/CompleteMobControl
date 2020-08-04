@@ -1,0 +1,37 @@
+uuid: b47750a9-a4df-4591-9d66-6aa95342bd88
+active: false
+material: BEDROCK
+location:
+    world: 739274e8-7ec8-46be-b207-feeff623f0e7
+    x: 0
+    y: 0
+    z: 0
+powerblock:
+    x: 0
+    y: 0
+    z: 0
+owner:
+    uuid: df749a65-cb09-48de-bbf2-a3044e19c2f5
+    name: EXAMPLE
+managers:
+    df749a65-cb09-48de-bbf2-a3044e19c2f5:
+        name: EXAMPLE
+        modes:
+            - USE
+            - MODIFY
+            - DESTROY
+    e6a0870a-3dc7-477f-8f0e-2bdc3710d006:
+        name: EXAMPLE2
+        modes:
+            - USE
+            - MODIFY
+            - DESTROY
+check_level: DEFAULT
+mode: BLACKLIST
+entities:
+    - !WOLF
+    - !FOX
+    - PASSIVE
+    - NEUTRAL
+    - HOSTILE
+    - !BOSS

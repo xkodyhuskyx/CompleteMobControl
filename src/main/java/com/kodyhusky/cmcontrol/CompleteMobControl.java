@@ -38,10 +38,9 @@ public class CompleteMobControl extends JavaPlugin {
         config = new ConfigManager(this);
         wards = new MobWardManager(this);
         
-        wards.addDebugMobWard();
+        wards.load();
+        
         getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
-        
-        
         
         logToConsole("CompleteMobControl Loaded Sucessfully!");
     }

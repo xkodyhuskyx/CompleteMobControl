@@ -109,7 +109,8 @@
                 <includes>
                     <include>plugin.yml</include>
                     <include>config.yml</include>
-                    <include>entities.yml</include>
+                    <include>entity_groups.yml</include>
+                    <include>examplemobward.yml</include>
                 </includes>
             </resource>
         </resources>

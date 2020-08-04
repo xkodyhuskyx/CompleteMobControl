@@ -23,7 +23,6 @@ import java.util.Map.Entry;
  *
  * @author xkodyhuskyx
  * @since CompleteMobControl v3.0.0
- * @see Map.Entry
  *
  * @param <K> the type of key maintained by this pair
  * @param <V> the paired value type
