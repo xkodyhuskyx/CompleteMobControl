@@ -33,6 +33,7 @@ import org.bukkit.Material;
  * @author xkodyhuskyx
  * @version 3.0.0
  */
+@SuppressWarnings({"unchecked", "rawtypes", "ReturnOfCollectionOrArrayField"})
 public class MobWard {
 
     private final UUID uuid;
@@ -347,5 +348,4 @@ public class MobWard {
     public void setActive(Boolean active) {
         this.active = active;
     }
-
 }

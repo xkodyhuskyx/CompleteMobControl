@@ -17,14 +17,13 @@
 package com.kodyhusky.cmcontrol.managers;
 
 import com.kodyhusky.cmcontrol.CompleteMobControl;
-import com.kodyhusky.cmcontrol.util.Pair;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import org.bukkit.Material;
+import java.util.logging.Level;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -32,118 +31,148 @@ import org.bukkit.entity.EntityType;
 
 /**
  * Manages all configuration values and storage.
- * 
+ *
  * @author xkodyhuskyx
  */
 public class ConfigManager {
 
-    private CompleteMobControl plugin;
+    private final CompleteMobControl plugin;
     private FileConfiguration config;
-    private HashMap<String, List<String>> entitygroups = new HashMap<>();
-    
+    private final HashMap<String, List<String>> entitygroups = new HashMap<>();
 
     public ConfigManager(CompleteMobControl plugin) {
-
         this.plugin = plugin;
+    }
 
-        // Read from config.yml
-        plugin.logToConsole("Reading config.yml data...");
-        File cfile = new File(plugin.getDataFolder(), "config.yml");
-        if (!cfile.exists()) {
-            try {
-                plugin.saveDefaultConfig();
-                config = plugin.getConfig();
-            } catch (Exception e) {
-                plugin.logToConsole("-- An error occurred while creating file (config.yml).");
-                return;
-            }
+    /**
+     * Loads all plugin configuration data.
+     */
+    public void load() {
+        plugin.logToConsole(Level.CONFIG, "Reading Plugin Configuration File...", false);
+        File configfile = new File(plugin.getDataFolder(), "config.yml");
+        if (!configfile.exists()) {
+            plugin.logToConsole(Level.INFO, "--> Creating Default Configuration File (config.yml).", false);
+            plugin.saveDefaultConfig();
         }
         config = plugin.getConfig();
-        
-        plugin.logToConsole("Loading entity groups...");
-        File efile = new File(plugin.getDataFolder(), "entity_groups.yml");
-        YamlConfiguration egroups = new YamlConfiguration();
+        if (config != null) {
+            plugin.logToConsole(Level.CONFIG, "Plugin Configuration File Read Sucessfully.", false);
+        } else {
+            plugin.logToConsole(Level.SEVERE, "Unable to Read Configuration File (config.yml)! Disabling Plugin!", true);
+            return;
+        }
+        plugin.logToConsole(Level.CONFIG, "Reading Entity Group File...", false);
+        File egroupfile = new File(plugin.getDataFolder(), "entity_groups.yml");
+        FileConfiguration egroupconfig = new YamlConfiguration();
+        if (!egroupfile.exists()) {
+            plugin.logToConsole(Level.INFO, "--> Creating Default Entity Groups File (entity_groups.yml).", false);
+            plugin.saveResource("entity_groups.yml", false);
+        }
         try {
-            egroups.load(efile);
-            egroups.getKeys(false).forEach(key -> {
-                List<String> entities = new ArrayList<>();
-                egroups.getStringList(key).forEach(entity -> {
-                    if (isValidEntityType(entity)) {
-                        entities.add(entity.toUpperCase());
-                    } else {
-                        plugin.logToConsole("WARN: Cannot identify entity (" + entity + ") listed in (config.yml).");
-                    }
-                });
-                entitygroups.put(key.toUpperCase(), entities);
-            });
+            egroupconfig.load(egroupfile);
         } catch (IOException | InvalidConfigurationException ex) {
-            plugin.logToConsole("WARN: Cannot load entity groups file (entity_groups.yml).");
-            plugin.getPluginLoader().disablePlugin(plugin);
+            plugin.logToConsole(Level.SEVERE, "Unable To Read Entity Groups File (entity_groups.yml)! Disabling Plugin!", false);
+            plugin.logToConsole(Level.SEVERE, "ISSUE: " + ex.getLocalizedMessage(), true);
         }
-        plugin.logToConsole("Config data loaded sucessfully.");
-    }
-    
-    private Boolean isValidEntityType(String type) {
-        try {
-            EntityType etype = EntityType.valueOf(type.toUpperCase());
-        } catch (Exception e) {
-            return false;
+        if (!egroupconfig.getKeys(false).isEmpty()) {
+            egroupconfig.getKeys(false).forEach(group -> {
+                if (group.contains(" ") || group.contains("-")) {
+                    plugin.logToConsole(Level.WARNING, "Group Names May Not Contain Spaces Or Dashes! Found Group Name (" + group.toUpperCase() + ")! Skipping...", false);
+                } else {
+                    List<String> entities = new ArrayList<>();
+                    if (!egroupconfig.getStringList(group).isEmpty()) {
+                        egroupconfig.getStringList(group).forEach(entity -> {
+                            try {
+                                EntityType etype = EntityType.valueOf(entity.toUpperCase());
+                                if (etype != null) {
+                                    entities.add(entity.toUpperCase());
+                                } else {
+                                    plugin.logToConsole(Level.WARNING, "Invalid Entity Type (" + entity.toUpperCase() + ") Found In Group (" + group.toUpperCase() + "! Skipping...", false);
+                                }
+                            } catch (Exception e) {
+                                plugin.logToConsole(Level.WARNING, "Invalid Entity Type (" + entity.toUpperCase() + ") Found In Group (" + group.toUpperCase() + "! Skipping...", false);
+                            }
+                        });
+                    } else {
+                        plugin.logToConsole(Level.WARNING, "Entity Group (" + group.toUpperCase() + ") Is Empty! Possible Error?", false);
+                    }
+                    entitygroups.put(group.toUpperCase(), entities);
+                }
+            });
+        } else {
+            plugin.logToConsole(Level.WARNING, "Entity Groups File (entity_groups.yml) Is Empty! Possible Error?", false);
         }
-        return true;
+        plugin.logToConsole(Level.CONFIG, "Entity Group File Read Sucessfully.", false);
     }
     
-    public HashMap<String, List<String>> getEntityGroups() {
-        return entitygroups;
+    /**
+     * Gets if a feature is enabled.
+     * @param feature Feature
+     * @return is enabled
+     */
+    public Boolean isFeatureEnabled(String feature) {
+        return config.getBoolean("features." + feature, true);
     }
-    
-    
-    
 
+    /**
+     * Get a list of all entity groups loaded from entity_groups.yml.
+     *
+     * @return list of all groups
+     */
+    public List<String> getEntityGroups() {
+        return (List<String>) entitygroups.keySet();
+    }
+
+    /**
+     * Get a list of all entities in the specified group.
+     *
+     * @param group entity group
+     * @return List - list of all entities in group
+     */
+    public List<String> getEntityGroupEntities(String group) {
+        return entitygroups.get(group);
+    }
+
+    /**
+     * Get if debug mode is enabled in the plugin configuration file.
+     *
+     * @return Boolean - debug enabled
+     */
     public boolean debugEnabled() {
         return config.getBoolean("debug", false);
     }
 
-    @SuppressWarnings("null")
-    public HashMap<Material, Pair<String,Integer>> getMobWardTypes() {
+    /**
+     * Returns the MobWard types configuration section.
+     *
+     * @return ConfigurationSection - MobWard types data
+     */
+    public ConfigurationSection getMobWardTypesConfig() {
         if (config.isConfigurationSection("mobward.types")) {
-            Set<String> types = config.getConfigurationSection("mobward.types").getKeys(false);
-            if (!types.isEmpty()) {
-                HashMap<Material,Pair<String,Integer>> newtype = new HashMap<>();
-                types.forEach(type -> {
-                    String blocktype = config.getString("mobward.types." + type + ".material", "is-invalid");
-                    int radius = config.getInt("mobward.types." + type + ".radius", 1000000000);
-                    if (radius != 1000000000 || !"is-invalid".equals(blocktype)) {
-                        Material material = Material.getMaterial(blocktype);
-                        if (material != null) {
-                            newtype.put(material, new Pair(type.toUpperCase(),radius));
-                        } else {
-                            plugin.logToConsole("WARN: A MobWard type contains an invalid material in (config.yml). Skipping...");
-                        }
-                    } else {
-                        plugin.logToConsole("WARN: A MobWard type contains invalid data in (config.yml). Skipping...");
-                    }
-                });
-                if (!newtype.isEmpty()) {
-                    return newtype;
-                }
-            }
+            return config.getConfigurationSection("mobward.types");
         }
-        plugin.logToConsole("WARN: No MobWard sizes listed in (config.yml). Loading defaults...");
-        HashMap<Material,Pair<String,Integer>> defaults = new HashMap<>();
-        defaults.put(Material.IRON_BLOCK, new Pair("MINI",25));
-        defaults.put(Material.GOLD_BLOCK, new Pair("SMALL",50));
-        defaults.put(Material.DIAMOND_BLOCK, new Pair("MEDIUM",75));
-        defaults.put(Material.EMERALD_BLOCK, new Pair("LARGE",100));
-        return defaults;
+        return null;
     }
 
-    int getMobWardRadiusType() {
+    /**
+     * Returns the MobWard radius value defined in the plugin configuration.
+     * <br><br><b>Possible Return Types</b>
+     * <br>0 - CUBE
+     * <br>1 - SPHERE (Default)
+     *
+     * @return radius type
+     */
+    public Integer getMobWardRadiusType() {
         if (config.contains("mobward.radius_type")) {
             String type = config.getString("mobward.radius_type");
-            if (!"SPHERE".equals(type)) {
-                return 1;
+            if (type != null && ("CUBE".equals(type.toUpperCase()) || "SPHERE".equals(type.toUpperCase()))) {
+                if ("CUBE".equals(type.toUpperCase())) {
+                    return 0;
+                }
+            } else {
+                plugin.logToConsole(Level.WARNING, "MobWard Radius Type Is Invalid! Defaulting To SPHERE...", false);
             }
         }
-        return 0;
+        return 1;
     }
 }

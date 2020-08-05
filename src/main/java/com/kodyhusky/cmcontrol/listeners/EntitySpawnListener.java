@@ -23,22 +23,29 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
 
 /**
+ * Listens for entity events.
  *
  * @author Kody
  */
 public class EntitySpawnListener implements Listener {
-    
-    CompleteMobControl plugin;
-    
+
+    private final CompleteMobControl plugin;
+
     public EntitySpawnListener(CompleteMobControl plugin) {
         this.plugin = plugin;
     }
-    
+
+    /**
+     * Called when an entity spawns.
+     *
+     * @param event Entity spawn event
+     */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntitySpawn(EntitySpawnEvent event) {
-        
-        if (plugin.getWardManager().isSpawnBlocked(event.getEntity())) {
-            event.setCancelled(true);
+        if (plugin.getPluginConfig().isFeatureEnabled("mobwards")) {
+            if (plugin.getWardManager().isSpawnBlocked(event.getEntity())) {
+                event.setCancelled(true);
+            }
         }
     }
 }

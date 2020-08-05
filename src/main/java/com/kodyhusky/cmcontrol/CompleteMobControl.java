@@ -19,12 +19,16 @@ package com.kodyhusky.cmcontrol;
 import com.kodyhusky.cmcontrol.listeners.EntitySpawnListener;
 import com.kodyhusky.cmcontrol.managers.MobWardManager;
 import com.kodyhusky.cmcontrol.managers.ConfigManager;
+import java.io.File;
+import java.io.IOException;
 import java.util.logging.Level;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * The main starting point and control for all plugin functions.
- * 
+ *
  * @author xkodyhuskyx
  */
 public class CompleteMobControl extends JavaPlugin {
@@ -34,29 +38,42 @@ public class CompleteMobControl extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        logToConsole("Started CompleteMobControl Initialization!");
+        logToConsole(Level.INFO, "Starting CompleteMobControl Initialization!", false);
+
+        // Write World File
+        FileConfiguration worldconfig = new YamlConfiguration();
+        getServer().getWorlds().forEach(world -> {
+            String uuid = world.getUID().toString();
+            worldconfig.set(uuid, world.getName());
+        });
+        try {
+            worldconfig.save(new File(getDataFolder(), "worlds.yml"));
+        } catch (IOException ex) {
+        }
+
         config = new ConfigManager(this);
-        wards = new MobWardManager(this);
+        config.load();
         
-        wards.load();
-        
-        getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
-        
-        logToConsole("CompleteMobControl Loaded Sucessfully!");
+        if (config.isFeatureEnabled("mobwards")) {
+            wards = new MobWardManager(this);
+            wards.load();
+            getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
+        }
+        logToConsole(Level.INFO, "CompleteMobControl Loaded Sucessfully!", false);
     }
 
     /**
      * Returns the loaded ConfigManager class.
-     * 
+     *
      * @return ConfigManager
      */
     public ConfigManager getPluginConfig() {
         return config;
     }
-    
+
     /**
      * Returns the loaded MobWardManager class.
-     * 
+     *
      * @return MobWardManager
      */
     public MobWardManager getWardManager() {
@@ -64,26 +81,40 @@ public class CompleteMobControl extends JavaPlugin {
     }
 
     /**
-     * Sends a message to the server console.
-     * 
-     * @param message Message to send to the console
-     * @param debug Add debug prefix to message (debug mode must be enabled)
+     * Logs a message to the server console.
+     * <br><br><b>Accepted Level Types:</b>
+     * <br> SEVERE = Error Logging
+     * <br> WARING = Warning Logging
+     * <br> INFO = General Logging
+     * <br> CONFIG = Initialization Logging
+     * <br> ALL = Debug Logging
+     *
+     * @param level Log Level
+     * @param message message to log
+     * @param disable disable plugin
      */
-    public void logToConsole(String message, Boolean debug) {
-        if (debug && config.debugEnabled()) {
-            getLogger().log(Level.INFO, "DEBUG >> {0}", message);
-        } else {
-            getLogger().info(message);
+    public void logToConsole(Level level, String message, Boolean disable) {
+        switch (level.intValue()) {
+            case 1000:
+                getLogger().log(Level.SEVERE, "ERROR: {0}", message);
+                break;
+            case 900:
+                getLogger().log(Level.WARNING, "WARN: {0}", message);
+                break;
+            case 700:
+                getLogger().log(Level.WARNING, "INIT: {0}", message);
+                break;
+            case Integer.MIN_VALUE:
+                if (config.debugEnabled()) {
+                    getLogger().log(Level.INFO, "DEBUG: {0}", message);
+                }
+                break;
+            default:
+                getLogger().info(message);
         }
-    }
-
-    /**
-     * Sends a message to the server console.
-     * 
-     * @param message Message to send to the console
-     */
-    public void logToConsole(String message) {
-        getLogger().info(message);
+        if (disable) {
+            getServer().getPluginManager().disablePlugin(this);
+        }
     }
 
 }

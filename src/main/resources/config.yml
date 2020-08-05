@@ -1,3 +1,5 @@
+features:
+    mobward: true
 mobward:
     radius_type: SPHERE
     types:
