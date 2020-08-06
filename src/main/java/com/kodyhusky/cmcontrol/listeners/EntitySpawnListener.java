@@ -17,9 +17,11 @@
 package com.kodyhusky.cmcontrol.listeners;
 
 import com.kodyhusky.cmcontrol.CompleteMobControl;
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 
 /**
@@ -48,4 +50,17 @@ public class EntitySpawnListener implements Listener {
             }
         }
     }
+    
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onFireStart(BlockPlaceEvent event) {
+        if (event.getBlockPlaced().getType() == Material.CAMPFIRE) {
+            plugin.getServer().broadcastMessage("Fire Placed: " + event.getBlockPlaced().getLocation().toString());
+            if (plugin.getWardManager().isValidMobWard(event.getBlockPlaced().getLocation())) {
+                
+            }
+        }
+    }
+    
+    
+    
 }

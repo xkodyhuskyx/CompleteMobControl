@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import org.bukkit.Location;
@@ -35,6 +36,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 /**
  *
@@ -240,6 +242,24 @@ public class MobWardManager {
         plugin.logToConsole(Level.SEVERE, "Found invalid " + error + " for MobWard (" + filename + ")!", false);
         return null;
     }
+    
+    /**
+     * Returns a list of all MobWards owned by the given player.
+     * @param player MobWard owner
+     * @return list of all MobWards owned by the player
+     */
+    public List<MobWard> getAllMobWards(Player player) {
+        List<MobWard> wards = new ArrayList<>();
+        if (!allwards.isEmpty()) {
+            allwards.forEach((uuid, ward) -> {
+                if (player.getUniqueId().toString().equalsIgnoreCase(ward.getOwner().getKey().toString())) {
+                    wards.add(ward);
+                }
+            });
+        }
+        return wards;
+    }
+    
 
     /**
      * Sets the active status of a MobWard.
@@ -336,7 +356,7 @@ public class MobWardManager {
     public boolean matchInEntityList(List<String> list, String name) {
         List<String> allentities = new ArrayList<>();
         List<String> toremove = new ArrayList<>();
-        List<String> allgroups = plugin.getPluginConfig().getEntityGroups();
+        Set<String> allgroups = plugin.getPluginConfig().getEntityGroups();
         list.forEach(entry -> {
             if (entry.contains("-")) {
                 String entryr = entry.replace("-", "");
@@ -355,5 +375,20 @@ public class MobWardManager {
         });
         allentities.removeAll(toremove);
         return allentities.contains(name);
+    }
+
+    public boolean isValidMobWard(Location location) {
+        if (location.subtract(0,1,0).getBlock().getType().equals(Material.REDSTONE_BLOCK)) {
+            plugin.getServer().broadcastMessage("Redstone Valid");
+            if (location.add(1,0,1).getBlock().getType().equals(Material.LAPIS_BLOCK) &&
+                    location.subtract(2,0,2).getBlock().getType().equals(Material.LAPIS_BLOCK) &&
+                    location.add(2,0,0).getBlock().getType().equals(Material.LAPIS_BLOCK) &&
+                    location.add(-2,0,2).getBlock().getType().equals(Material.LAPIS_BLOCK)) {
+                plugin.getServer().broadcastMessage("1 1 Lapis");
+                return true;
+            }
+            
+        }
+        return false;
     }
 }

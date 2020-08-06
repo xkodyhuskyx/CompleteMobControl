@@ -24,9 +24,9 @@ commands:
     cmc:
         description: General plugin commands.
         usage: "Usage: /cmc help 1"
-    erepel:
-        description: Entity repeller commands.
-        usage: "Usage: /cmc help 2"
+    mobward:
+        description: MobWard commands.
+        usage: "Usage: /mobward"
 permissions:
     completemc.reload:
         description: Allows access to the /cmc reload command.

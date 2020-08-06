@@ -16,9 +16,11 @@
  */
 package com.kodyhusky.cmcontrol;
 
+import com.kodyhusky.cmcontrol.commands.MobWardCommand;
 import com.kodyhusky.cmcontrol.listeners.EntitySpawnListener;
 import com.kodyhusky.cmcontrol.managers.MobWardManager;
 import com.kodyhusky.cmcontrol.managers.ConfigManager;
+import com.kodyhusky.cmcontrol.managers.LanguageManager;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -35,6 +37,7 @@ public class CompleteMobControl extends JavaPlugin {
 
     private ConfigManager config;
     private MobWardManager wards;
+    private LanguageManager language;
 
     @Override
     public void onEnable() {
@@ -54,10 +57,14 @@ public class CompleteMobControl extends JavaPlugin {
         config = new ConfigManager(this);
         config.load();
         
+        language = new LanguageManager(this);
+        language.load();
+        
         if (config.isFeatureEnabled("mobwards")) {
             wards = new MobWardManager(this);
             wards.load();
             getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
+            this.getCommand("mobward").setExecutor(new MobWardCommand(this));
         }
         logToConsole(Level.INFO, "CompleteMobControl Loaded Sucessfully!", false);
     }
@@ -69,6 +76,15 @@ public class CompleteMobControl extends JavaPlugin {
      */
     public ConfigManager getPluginConfig() {
         return config;
+    }
+    
+    /**
+     * Returns the loaded LanguageManager class.
+     *
+     * @return LanguageManager
+     */
+    public LanguageManager getLanguage() {
+        return language;
     }
 
     /**

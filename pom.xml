@@ -111,6 +111,7 @@
                     <include>config.yml</include>
                     <include>entity_groups.yml</include>
                     <include>examplemobward.yml</include>
+                    <include>language.yml</include>
                 </includes>
             </resource>
         </resources>

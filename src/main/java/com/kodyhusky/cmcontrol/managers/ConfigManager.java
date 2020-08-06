@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -38,6 +39,7 @@ public class ConfigManager {
 
     private final CompleteMobControl plugin;
     private FileConfiguration config;
+    private FileConfiguration language;
     private final HashMap<String, List<String>> entitygroups = new HashMap<>();
 
     public ConfigManager(CompleteMobControl plugin) {
@@ -71,7 +73,7 @@ public class ConfigManager {
         try {
             egroupconfig.load(egroupfile);
         } catch (IOException | InvalidConfigurationException ex) {
-            plugin.logToConsole(Level.SEVERE, "Unable To Read Entity Groups File (entity_groups.yml)! Disabling Plugin!", false);
+            plugin.logToConsole(Level.SEVERE, "Unable To Read Entity Groups File (entity_groups.yml)! Disabling Plugin!", true);
             plugin.logToConsole(Level.SEVERE, "ISSUE: " + ex.getLocalizedMessage(), true);
         }
         if (!egroupconfig.getKeys(false).isEmpty()) {
@@ -116,11 +118,11 @@ public class ConfigManager {
 
     /**
      * Get a list of all entity groups loaded from entity_groups.yml.
-     *
+     * 
      * @return list of all groups
      */
-    public List<String> getEntityGroups() {
-        return (List<String>) entitygroups.keySet();
+    public Set<String> getEntityGroups() {
+        return entitygroups.keySet();
     }
 
     /**
