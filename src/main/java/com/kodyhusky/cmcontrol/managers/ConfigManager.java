@@ -50,31 +50,28 @@ public class ConfigManager {
      * Loads all plugin configuration data.
      */
     public void load() {
-        plugin.logToConsole(Level.CONFIG, "Reading Plugin Configuration File...", false);
         File configfile = new File(plugin.getDataFolder(), "config.yml");
         if (!configfile.exists()) {
-            plugin.logToConsole(Level.INFO, "--> Creating Default Configuration File (config.yml).", false);
+            plugin.logToConsole(Level.CONFIG, "Creating Default Configuration File (config.yml).", false);
             plugin.saveDefaultConfig();
         }
         config = plugin.getConfig();
-        if (config != null) {
-            plugin.logToConsole(Level.CONFIG, "Plugin Configuration File Read Sucessfully.", false);
-        } else {
+        if (config == null) {
             plugin.logToConsole(Level.SEVERE, "Unable to Read Configuration File (config.yml)! Disabling Plugin!", true);
             return;
         }
-        plugin.logToConsole(Level.CONFIG, "Reading Entity Group File...", false);
-        File egroupfile = new File(plugin.getDataFolder(), "entity_groups.yml");
+        File egroupfile = new File(plugin.getDataFolder(), "entity-groups.yml");
         FileConfiguration egroupconfig = new YamlConfiguration();
         if (!egroupfile.exists()) {
-            plugin.logToConsole(Level.INFO, "--> Creating Default Entity Groups File (entity_groups.yml).", false);
-            plugin.saveResource("entity_groups.yml", false);
+            plugin.logToConsole(Level.CONFIG, "Creating Default Entity Groups File (entity_groups.yml).", false);
+            plugin.saveResource("entity-groups.yml", false);
         }
         try {
             egroupconfig.load(egroupfile);
         } catch (IOException | InvalidConfigurationException ex) {
-            plugin.logToConsole(Level.SEVERE, "Unable To Read Entity Groups File (entity_groups.yml)! Disabling Plugin!", true);
+            plugin.logToConsole(Level.SEVERE, "Unable To Read Entity Groups File (entity_groups.yml)! Disabling Plugin!", false);
             plugin.logToConsole(Level.SEVERE, "ISSUE: " + ex.getLocalizedMessage(), true);
+            return;
         }
         if (!egroupconfig.getKeys(false).isEmpty()) {
             egroupconfig.getKeys(false).forEach(group -> {
@@ -86,12 +83,8 @@ public class ConfigManager {
                         egroupconfig.getStringList(group).forEach(entity -> {
                             try {
                                 EntityType etype = EntityType.valueOf(entity.toUpperCase());
-                                if (etype != null) {
-                                    entities.add(entity.toUpperCase());
-                                } else {
-                                    plugin.logToConsole(Level.WARNING, "Invalid Entity Type (" + entity.toUpperCase() + ") Found In Group (" + group.toUpperCase() + "! Skipping...", false);
-                                }
-                            } catch (Exception e) {
+                                entities.add(entity.toUpperCase());
+                            } catch (IllegalArgumentException | NullPointerException e) {
                                 plugin.logToConsole(Level.WARNING, "Invalid Entity Type (" + entity.toUpperCase() + ") Found In Group (" + group.toUpperCase() + "! Skipping...", false);
                             }
                         });
@@ -104,11 +97,11 @@ public class ConfigManager {
         } else {
             plugin.logToConsole(Level.WARNING, "Entity Groups File (entity_groups.yml) Is Empty! Possible Error?", false);
         }
-        plugin.logToConsole(Level.CONFIG, "Entity Group File Read Sucessfully.", false);
     }
-    
+
     /**
      * Gets if a feature is enabled.
+     *
      * @param feature Feature
      * @return is enabled
      */
@@ -118,7 +111,7 @@ public class ConfigManager {
 
     /**
      * Get a list of all entity groups loaded from entity_groups.yml.
-     * 
+     *
      * @return list of all groups
      */
     public Set<String> getEntityGroups() {

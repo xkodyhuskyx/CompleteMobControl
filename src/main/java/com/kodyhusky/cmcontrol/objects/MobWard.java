@@ -41,7 +41,7 @@ public class MobWard {
     private final Material material;
     private final Location location;
     private Location redstone;
-    private Pair<UUID,String> owner;
+    private Pair<UUID, String> owner;
     private final HashMap<UUID, Pair<String, List<String>>> managers;
     private int checklevel;
     private int mode;
@@ -65,7 +65,7 @@ public class MobWard {
      * @param entities Entities to check
      */
     public MobWard(UUID uuid, Boolean active, Material material, Location location,
-            Location redstone, Pair<UUID,String> owner, HashMap<UUID, Pair<String, List<String>>> managers,
+            Location redstone, Pair<UUID, String> owner, HashMap<UUID, Pair<String, List<String>>> managers,
             int checklevel, int mode, List<String> entities) {
         this.uuid = uuid;
         this.active = active;
@@ -91,7 +91,7 @@ public class MobWard {
      * @param mode .
      * @param entities .
      */
-    public MobWard(Boolean active, Material material, Location location, Pair<UUID,String> owner, int checklevel, int mode, List<String> entities) {
+    public MobWard(Boolean active, Material material, Location location, Pair<UUID, String> owner, int checklevel, int mode, List<String> entities) {
         this.uuid = UUID.randomUUID();
         this.active = active;
         this.material = material;
@@ -156,7 +156,7 @@ public class MobWard {
      *
      * @return Pair uuid and username pair
      */
-    public Pair<UUID,String> getOwner() {
+    public Pair<UUID, String> getOwner() {
         return this.owner;
     }
 
@@ -167,7 +167,7 @@ public class MobWard {
      * @param name - Owners username
      */
     public void setOwner(UUID uuid, String name) {
-        this.owner = new Pair(uuid,name);
+        this.owner = new Pair(uuid, name);
     }
 
     /**

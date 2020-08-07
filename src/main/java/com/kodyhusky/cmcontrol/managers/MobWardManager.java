@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import org.bukkit.Location;
@@ -42,7 +41,6 @@ import org.bukkit.entity.Player;
  *
  * @author xkodyhuskyx
  */
-@SuppressWarnings({"unchecked", "rawtypes", "null"})
 public class MobWardManager {
 
     private final CompleteMobControl plugin;
@@ -61,19 +59,17 @@ public class MobWardManager {
      * Loads all MobWard Configuration files and data.
      */
     public void load() {
-        plugin.logToConsole(Level.CONFIG, "Reading MobWard Configuration Files...", false);
-        plugin.logToConsole(Level.INFO, "Getting Radius Type...", false);
         radiustype = plugin.getPluginConfig().getMobWardRadiusType();
-        plugin.logToConsole(Level.INFO, "Getting MobWard Material Types...", false);
         ConfigurationSection wardconfig = plugin.getPluginConfig().getMobWardTypesConfig();
         if (wardconfig != null) {
             if (!wardconfig.getKeys(false).isEmpty()) {
                 wardconfig.getKeys(false).forEach(type -> {
-                    Material material = Material.getMaterial(wardconfig.getString(type + ".material", "is-invalid"));
+                    String wardmat = wardconfig.getString(type + ".material", "is-invalid");
+                    Material material = Material.getMaterial(wardmat != null ? wardmat : "is-invalid");
                     int radius = wardconfig.getInt(type + ".radius", 1000000000);
                     if (radius != 1000000000) {
                         if (material != null) {
-                            materials.put(material, new Pair(type.toUpperCase(), radius));
+                            materials.put(material, new Pair<>(type.toUpperCase(), radius));
                         } else {
                             plugin.logToConsole(Level.WARNING, "MobWard Type (" + type + ") Contains Invalid Material In (config.yml). Skipping...", false);
                         }
@@ -85,37 +81,33 @@ public class MobWardManager {
         }
         if (materials.isEmpty()) {
             plugin.logToConsole(Level.WARNING, "No MobWard Sizes Are Defined In (config.yml). Loading Defaults...", false);
-            materials.put(Material.IRON_BLOCK, new Pair("MINI", 25));
-            materials.put(Material.GOLD_BLOCK, new Pair("SMALL", 50));
-            materials.put(Material.DIAMOND_BLOCK, new Pair("MEDIUM", 75));
-            materials.put(Material.EMERALD_BLOCK, new Pair("LARGE", 100));
+            materials.put(Material.IRON_BLOCK, new Pair<>("MINI", 25));
+            materials.put(Material.GOLD_BLOCK, new Pair<>("SMALL", 50));
+            materials.put(Material.DIAMOND_BLOCK, new Pair<>("MEDIUM", 75));
+            materials.put(Material.EMERALD_BLOCK, new Pair<>("LARGE", 100));
         }
-        plugin.logToConsole(Level.CONFIG, "Reading MobWard Data Files...", false);
-        File warddir = new File(plugin.getDataFolder(), "mobwards");
-        File[] files = warddir.listFiles((File dir, String name) -> name.toLowerCase().endsWith(".yml"));
+        File[] files = (new File(plugin.getDataFolder(), "mobwards")).listFiles((File dir, String name) -> name.toLowerCase().endsWith(".yml"));
         for (File file : files) {
             FileConfiguration warddata = new YamlConfiguration();
             try {
                 warddata.load(file);
                 MobWard ward = loadMobWard(warddata, file.getName());
-                if (ward == null) {
-                    throw new InvalidConfigurationException("Unknown Error Occurred");
+                if (ward != null) {
+                    allwards.put(ward.getUUID(), ward);
+                    if (ward.isActive()) {
+                        activewards.put(ward.getUUID(), new Pair<>(ward.getLocation(), materials.get(ward.getMaterial()).getValue()));
+                    }
+                    if (ward.getRedstoneLocation() != null) {
+                        redstones.put(ward.getRedstoneLocation(), ward.getUUID());
+                    }
+                    plugin.logToConsole(Level.ALL, "Loaded New Repeller ID (" + ward.getUUID() + ") At Location (" + ward.getLocation().toString() + ")", false);
                 }
-                UUID warduuid = ward.getUUID();
-                allwards.put(warduuid, ward);
-                if (ward.isActive()) {
-                    activewards.put(warduuid, new Pair(ward.getLocation(), materials.get(ward.getMaterial()).getValue()));
-                }
-                if (ward.getRedstoneLocation() != null) {
-                    redstones.put(ward.getRedstoneLocation(), warduuid);
-                }
-                plugin.logToConsole(Level.ALL, "Loaded New Repeller ID (" + warduuid + ") At Location (" + ward.getLocation().toString() + ")", false);
             } catch (IOException | InvalidConfigurationException ex) {
                 plugin.logToConsole(Level.WARNING, "Unable to load MobWard file (" + file.getName() + ")! Skipping...", false);
                 plugin.logToConsole(Level.INFO, "ISSUE: " + ex.getLocalizedMessage(), Boolean.FALSE);
             }
         }
-        plugin.logToConsole(Level.CONFIG, "MobWard Configuration Files Loaded Sucessfully.", false);
+        plugin.logToConsole(Level.WARNING, "Sucessfully Loaded (" + allwards.size() + ") MobWards!", false);
     }
 
     /**
@@ -128,123 +120,82 @@ public class MobWardManager {
     @SuppressWarnings("null")
     public MobWard loadMobWard(FileConfiguration config, String filename) {
         String uuidregex = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$";
-        String error;
-        UUID uuid;
-        Boolean active = config.getBoolean("active", false);
-        Material material;
-        Location location;
+        String sc = config.getString("uuid", "is-invalid");
+        UUID uuid = sc.matches(uuidregex) ? UUID.fromString(sc) : null;
+        Material mc = Material.getMaterial(config.getString("material", "is-invalid"));
+        Material material = mc != null ? mc : null;
+        sc = config.getString("location.world", "is-invalid");
+        World wc = sc.matches(uuidregex) ? plugin.getServer().getWorld(UUID.fromString(sc)) : null;
+        Double xc = config.getDouble("location.x", 1000000000.00);
+        Double yc = config.getDouble("location.y", 1000000000.00);
+        Double zc = config.getDouble("location.z", 1000000000.00);
+        Location location = (wc != null && xc != 1000000000.00 && yc != 1000000000.00 && zc != 1000000000.00) ? new Location(wc, xc, yc, zc) : null;
         Location redstone = null;
-        Pair<UUID, String> owner;
+        if (config.contains("powerblock")) {
+            xc = config.getDouble("powerblock.x", 1000000000.00);
+            yc = config.getDouble("powerblock.y", 1000000000.00);
+            zc = config.getDouble("powerblock.z", 1000000000.00);
+            redstone = (xc != 1000000000.00 && yc != 1000000000.00 && zc != 1000000000.00) ? new Location(wc, xc, yc, zc) : null;
+            if (redstone == null) {
+                plugin.logToConsole(Level.WARNING, "Found invalid coordinates for MobWard redstone (" + filename + ")! Skipping...", false);
+            }
+        }
+        sc = config.getString("owner.uuid", "is-invalid");
+        Pair<UUID, String> owner = sc.matches(uuidregex) ? new Pair<>(UUID.fromString(sc), config.getString("owner.name", "Unknown")) : null;
         HashMap<UUID, Pair<String, List<String>>> managers = new HashMap<>();
-        String checklevel = config.getString("check_level", "is-invalid");
-        String mode = config.getString("mode", "is-invalid");
-        List<String> entities = config.getStringList("entities");
-        String uuidcheck = config.getString("uuid", "is-invalid");
-        if (uuidcheck.matches(uuidregex)) {
-            uuid = UUID.fromString(uuidcheck);
-            Material matcheck = Material.getMaterial(config.getString("material", "is-invalid"));
-            if (matcheck != null) {
-                material = matcheck;
-                String worldcheck = config.getString("location.world", "is-invalid");
-                if (worldcheck.matches(uuidregex)) {
-                    World world = plugin.getServer().getWorld(UUID.fromString(worldcheck));
-                    if (world != null) {
-                        Double xc = config.getDouble("location.x", 1000000000.00);
-                        Double yc = config.getDouble("location.y", 1000000000.00);
-                        Double zc = config.getDouble("location.z", 1000000000.00);
-                        if (xc != 1000000000.00 && yc != 1000000000.00 && zc != 1000000000.00) {
-                            location = new Location(world, xc, yc, zc);
-                            if (config.contains("powerblock")) {
-                                xc = config.getDouble("powerblock.x", 1000000000.00);
-                                yc = config.getDouble("powerblock.y", 1000000000.00);
-                                zc = config.getDouble("powerblock.z", 1000000000.00);
-                                if (xc != 1000000000.00 && yc != 1000000000.00 && zc != 1000000000.00) {
-                                    redstone = new Location(world, xc, yc, zc);
-                                } else {
-                                    plugin.logToConsole(Level.WARNING, "Found invalid coordinates for MobWard redstone (" + filename + ")! Skipping...", false);
-                                }
-                            }
-                            String owneruuid = config.getString("owner.uuid", "is-invalid");
-                            String ownername = config.getString("owner.name", "Unknown");
-                            if (owneruuid.matches(uuidregex)) {
-                                owner = new Pair(UUID.fromString(owneruuid), ownername);
-                                if (config.contains("managers")) {
-                                    config.getConfigurationSection("managers").getKeys(false).forEach(key -> {
-                                        if (key.matches(uuidregex)) {
-                                            List<String> managermodes = new ArrayList<>();
-                                            config.getStringList("managers." + key + ".modes").forEach(managermode -> {
-                                                if ("USE".equals(managermode) || "MODIFY".equals(managermode) || "DESTROY".equals(managermode)) {
-                                                    managermodes.add(managermode);
-                                                } else {
-                                                    plugin.logToConsole(Level.WARNING, "Found invalid manager mode (" + mode + ") for MobWard (" + filename + ")! Skipping...", false);
-                                                }
-                                            });
-                                            managers.put(UUID.fromString(key), new Pair(config.getString("managers." + key + ".name", "Unknown"), managermodes));
-                                        } else {
-                                            plugin.logToConsole(Level.WARNING, "Found invalid UUID for MobWard manager (" + filename + ")! Skipping...", false);
-                                        }
-                                    });
-                                }
-                                if (!"is-invalid".equals(checklevel)) {
-                                    int checkint = 0;
-                                    switch (checklevel) {
-                                        case "BELOW":
-                                            checkint = -1;
-                                            break;
-                                        case "DEFAULT":
-                                            checkint = 0;
-                                            break;
-                                        case "ABOVE":
-                                            checkint = 1;
-                                            break;
-                                        default:
-                                            plugin.logToConsole(Level.WARNING, "Check level for MobWard (" + filename + ") is invalid! Loading defaults...", false);
-                                            checkint = 0;
-                                            break;
-                                    }
-                                    if ("BLACKLIST".equals(mode) || "WHITELIST".equals(mode)) {
-                                        int modeint = "BLACKLIST".equals(mode) ? 0 : 1;
-                                        if (config.contains("entities")) {
-                                            if (entities.isEmpty()) {
-                                                plugin.logToConsole(Level.WARNING, "Entity list for MobWard (" + filename + ") is empty! MobWard will do nothing!", false);
-                                            }
-                                        } else {
-                                            plugin.logToConsole(Level.WARNING, "Entity list for MobWard (" + filename + ") is empty! MobWard will do nothing!", false);
-                                        }
-                                        if (!config.contains("active")) {
-                                            plugin.logToConsole(Level.WARNING, "Active boolean not found for MobWard (" + filename + ")! Defaulting to disabled...", false);
-                                        }
-                                        return new MobWard(uuid, active, material, location, redstone, owner, managers, checkint, modeint, entities);
-                                    } else {
-                                        error = "mode";
-                                    }
-                                } else {
-                                    error = "check level";
-                                }
-                            } else {
-                                error = "owner uuid";
-                            }
-                        } else {
-                            error = "world coordinates";
-                        }
-                    } else {
-                        error = "world UUID";
-                    }
+        if (config.contains("managers")) {
+            config.getConfigurationSection("managers").getKeys(false).forEach(key -> {
+                if (key.matches(uuidregex)) {
+                    List<String> mm = new ArrayList<>();
+                    config.getStringList("managers." + key + ".modes").forEach(managermode -> {
+                        mm.add(managermode);
+                    });
+                    managers.put(UUID.fromString(key), new Pair<>(config.getString("managers." + key + ".name", "Unknown"), mm));
                 } else {
-                    error = "world UUID";
+                    plugin.logToConsole(Level.WARNING, "Found invalid UUID for MobWard manager (" + filename + ")! Skipping...", false);
                 }
-            } else {
-                error = "material";
+            });
+        }
+        sc = config.getString("check_level", "is-invalid");
+        int checkint = 0;
+        switch (sc) {
+            case "BELOW":
+                checkint = -1;
+                break;
+            case "DEFAULT":
+                checkint = 0;
+                break;
+            case "ABOVE":
+                checkint = 1;
+                break;
+            default:
+                plugin.logToConsole(Level.WARNING, "Check level for MobWard (" + filename + ") is invalid! Loading defaults...", false);
+                checkint = 0;
+        }
+        sc = config.getString("mode", "is-invalid");
+        int modeint = ("BLACKLIST".equalsIgnoreCase(sc) || "WHITELIST".equalsIgnoreCase(sc) ? ("BLACKLIST".equalsIgnoreCase(sc) ? 0 : 1) : 0);
+        List<String> entities = config.getStringList("entities");
+        if (config.contains("entities")) {
+            if (entities.isEmpty()) {
+                plugin.logToConsole(Level.WARNING, "Entity list for MobWard (" + filename + ") is empty! MobWard will do nothing!", false);
             }
         } else {
-            error = "UUID";
+            plugin.logToConsole(Level.WARNING, "Entity list for MobWard (" + filename + ") is empty! MobWard will do nothing!", false);
         }
-        plugin.logToConsole(Level.SEVERE, "Found invalid " + error + " for MobWard (" + filename + ")!", false);
-        return null;
+        Boolean active = config.getBoolean("active", false);
+        if (!config.contains("active")) {
+            plugin.logToConsole(Level.WARNING, "Active boolean not found for MobWard (" + filename + ")! Defaulting to disabled...", false);
+        }
+        if (uuid == null || material == null || location == null || owner == null) {
+            plugin.logToConsole(Level.SEVERE, "Found invalid MobWard Configuration File (" + filename + ")! Skipping...", false);
+            return null;
+        }
+        return new MobWard(uuid, active, material, location, redstone, owner, managers, checkint, modeint, entities);
     }
-    
+
     /**
      * Returns a list of all MobWards owned by the given player.
+     *
      * @param player MobWard owner
      * @return list of all MobWards owned by the player
      */
@@ -259,7 +210,6 @@ public class MobWardManager {
         }
         return wards;
     }
-    
 
     /**
      * Sets the active status of a MobWard.
@@ -273,7 +223,7 @@ public class MobWardManager {
         allwards.replace(uuid, ward);
         if (active) {
             if (!activewards.containsKey(uuid)) {
-                activewards.put(uuid, new Pair(ward.getLocation(), materials.get(ward.getMaterial())));
+                activewards.put(uuid, new Pair<>(ward.getLocation(), materials.get(ward.getMaterial()).getValue()));
             }
         } else {
             if (activewards.containsKey(uuid)) {
@@ -311,23 +261,16 @@ public class MobWardManager {
      */
     public boolean isSpawnBlocked(Entity entity) {
         for (Map.Entry<UUID, Pair<Location, Integer>> entry : activewards.entrySet()) {
-            Location wardlocation = entry.getValue().getKey();
-            int radius = (entry.getValue()).getValue();
-            if (isInRadius(entity.getLocation(), wardlocation, radius)) {
+            if (isInRadius(entity.getLocation(), entry.getValue().getKey(), entry.getValue().getValue())) {
                 MobWard ward = allwards.get(entry.getKey());
                 double y1 = entity.getLocation().getY();
                 double y2 = ward.getLocation().getY();
-                if (ward.getCheckLevel() == 0 || ward.getCheckLevel() == 1 && y1 >= y2 || ward.getCheckLevel() == -1 && y1 < y2) {
-                    if (ward.getMode() == 0) {
-                        if (this.matchInEntityList(ward.getEntityList(), entity.getType().name().toUpperCase())) {
-                            plugin.logToConsole(Level.ALL, "[BLOCKED] " + entity.getType().name().toUpperCase() + " {" + entity.getLocation().toString() + "} BY WARD ID {" + ward.getUUID() + "}", false);
-                            return true;
-                        }
-                    } else {
-                        if (!this.matchInEntityList(ward.getEntityList(), entity.getType().name().toUpperCase())) {
-                            plugin.logToConsole(Level.ALL, "[BLOCKED] " + entity.getType().name().toUpperCase() + " {" + entity.getLocation().toString() + "} BY WARD ID {" + ward.getUUID() + "}", false);
-                            return true;
-                        }
+                int cl = ward.getCheckLevel();
+                if (cl == 0 || cl == 1 && y1 >= y2 || cl == -1 && y1 < y2) {
+                    if (ward.getMode() == 0 && matchInEntityList(ward.getEntityList(), entity.getType().name().toUpperCase())
+                            || ward.getMode() == 1 && !this.matchInEntityList(ward.getEntityList(), entity.getType().name().toUpperCase())) {
+                        plugin.logToConsole(Level.ALL, "[BLOCKED] " + entity.getType().name().toUpperCase() + " {" + entity.getLocation().toString() + "} BY WARD ID {" + ward.getUUID() + "}", false);
+                        return true;
                     }
                 }
             }
@@ -356,20 +299,24 @@ public class MobWardManager {
     public boolean matchInEntityList(List<String> list, String name) {
         List<String> allentities = new ArrayList<>();
         List<String> toremove = new ArrayList<>();
-        Set<String> allgroups = plugin.getPluginConfig().getEntityGroups();
         list.forEach(entry -> {
-            if (entry.contains("-")) {
-                String entryr = entry.replace("-", "");
-                if (allgroups.contains(entryr)) {
-                    toremove.addAll(plugin.getPluginConfig().getEntityGroupEntities(entryr));
+            Boolean remove = entry.startsWith("-");
+            String clean = entry.replace("-", "");
+            if (plugin.getPluginConfig().getEntityGroups().contains(clean)) {
+                if (remove) {
+                    plugin.getPluginConfig().getEntityGroupEntities(clean).forEach(entity -> {
+                        toremove.add(entity);
+                    });
                 } else {
-                    toremove.add(entryr);
+                    plugin.getPluginConfig().getEntityGroupEntities(clean).forEach(entity -> {
+                        allentities.add(entity);
+                    });
                 }
             } else {
-                if (allgroups.contains(entry)) {
-                    allentities.addAll(plugin.getPluginConfig().getEntityGroupEntities(entry));
+                if (remove) {
+                    toremove.add(clean);
                 } else {
-                    toremove.add(entry);
+                    allentities.add(clean);
                 }
             }
         });
@@ -378,17 +325,26 @@ public class MobWardManager {
     }
 
     public boolean isValidMobWard(Location location) {
-        if (location.subtract(0,1,0).getBlock().getType().equals(Material.REDSTONE_BLOCK)) {
+        if (location.subtract(0, 1, 0).getBlock().getType().equals(Material.REDSTONE_BLOCK)) {
             plugin.getServer().broadcastMessage("Redstone Valid");
-            if (location.add(1,0,1).getBlock().getType().equals(Material.LAPIS_BLOCK) &&
-                    location.subtract(2,0,2).getBlock().getType().equals(Material.LAPIS_BLOCK) &&
-                    location.add(2,0,0).getBlock().getType().equals(Material.LAPIS_BLOCK) &&
-                    location.add(-2,0,2).getBlock().getType().equals(Material.LAPIS_BLOCK)) {
+            if (location.add(1, 0, 1).getBlock().getType().equals(Material.LAPIS_BLOCK)
+                    && location.subtract(2, 0, 2).getBlock().getType().equals(Material.LAPIS_BLOCK)
+                    && location.add(2, 0, 0).getBlock().getType().equals(Material.LAPIS_BLOCK)
+                    && location.add(-2, 0, 2).getBlock().getType().equals(Material.LAPIS_BLOCK)) {
                 plugin.getServer().broadcastMessage("1 1 Lapis");
                 return true;
             }
-            
         }
         return false;
     }
 }
+
+/*
+
+I I   I I
+I L X L I
+  X R X
+I L X L I
+I I   I I
+
+ */

@@ -42,22 +42,17 @@ public class CompleteMobControl extends JavaPlugin {
     @Override
     public void onEnable() {
         logToConsole(Level.INFO, "Starting CompleteMobControl Initialization!", false);
-
-        // Write World File
         FileConfiguration worldconfig = new YamlConfiguration();
         getServer().getWorlds().forEach(world -> {
-            String uuid = world.getUID().toString();
-            worldconfig.set(uuid, world.getName());
+            worldconfig.set(world.getUID().toString(), world.getName());
         });
         try {
-            worldconfig.save(new File(getDataFolder(), "worlds.yml"));
-        } catch (IOException ex) {
-        }
-
+            worldconfig.save(new File(getDataFolder(), "worlduuids.yml"));
+        } catch (IOException ex) {}
         config = new ConfigManager(this);
-        config.load();
-        
         language = new LanguageManager(this);
+        
+        config.load();
         language.load();
         
         if (config.isFeatureEnabled("mobwards")) {

@@ -17,59 +17,14 @@ name: CompleteMobControl
 main: com.kodyhusky.cmcontrol.CompleteMobControl
 version: 3.0.0
 author: xkodyhuskyx
-api-version: 1.13
+api-version: 1.16
 description: CMC is a complete mob control option for your server!
 website: http://dev.bukkit.org/server-mods/completemobcontrol/
 commands:
-    cmc:
-        description: General plugin commands.
-        usage: "Usage: /cmc help 1"
     mobward:
         description: MobWard commands.
         usage: "Usage: /mobward"
 permissions:
     completemc.reload:
         description: Allows access to the /cmc reload command.
-        default: op
-    completemc.version:
-        description: Allows access to the /cmc version command.
-        default: op
-    completemc.help:
-        description: Allows access to the /cmc help command.
-        default: op
-    completemc.ercreate:
-        description: Allows a player to build an entity repeller.
-        default: op
-    completemc.erdestroy:
-        description: Allows a player to destroy an entity repeller.
-        default: op
-    completemc.erccreate:
-        description: Allows access to the /erepel create command.
-        default: op
-    completemc.erlist:
-        description: Allows access to the /erepel list command.
-        default: op
-    completemc.erremove:
-        description: Allows access to the /erepel remove command.
-        default: op
-    completemc.erremoveall:
-        description: Allows access to the /erepel removeall command.
-        default: op
-    completemc.ermodify:
-        description: Allows access to the /erepel modify command.
-        default: op
-    completemc.craft.mobrepellent:
-        description: Allows a player to craft mobrepellent.
-        default: op
-    completemc.craft.therepellingsword:
-        description: Allows a player to craft the repelling sword.
-        default: op
-    completemc.giants.spawn:
-        description: Allows access to the /cmc giant spawn command.
-        default: op
-    completemc.giants.killall:
-        description: Allows access to the /cmc giant killall command.
-        default: op
-    completemc.giants.list:
-        description: Allows access to the /cmc giant list command.
         default: op

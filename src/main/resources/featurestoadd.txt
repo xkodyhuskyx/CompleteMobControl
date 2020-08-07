@@ -1,0 +1,58 @@
+===========================================
+!! THIS IS A LIST OF FEATURES TO WORK ON !!
+-------------------------------------------
+   This file will not be included in the
+compiled jar file and will serve no purpose
+         other than a to-do list.
+-------------------------------------------
+!! THIS IS A LIST OF FEATURES TO WORK ON !!
+===========================================
+
+API For Developers
+MobWard:
+  New Design Concept
+  Multiple World Support
+  Per Ward Options
+  Creeper Blast Protection
+  Redstone Power Switch
+  Learn Item (Learn To Be Able To Make) - Special Book Maybe
+  Collect Drops In Chest (Must Be Able To Be Disabled)
+  Modifier Items (Effects, Radius Boost)
+Custom Mob Drops:
+  Custom Rates
+  Item+Meta Support (Material?)
+  Override Vanilla
+Silk Touch Spawners:
+  Special Tool?
+Custom Spawn Limits/Rates
+  Limit Per Chunk
+  Limit Per World
+  More Jockeys
+Mob Drop Remover (Removes floating items at a set rate)
+Money For Killing Mobs (Job)
+Commands:
+  Spawnmob
+  spawner
+  mob kill
+  mob heal
+  Villager Commands
+Forcefields (May Remove This)
+Zombies Break Doors
+HardMode Mobs spawn with armor
+Zombies Infect You
+Rare Spawns
+  Title Message
+  Custom Health
+  Custom Drops
+Lock Tamed Animals (Horses)
+Particle Effects
+  Spawn
+  Target
+  Tame
+  Leashed
+  Wards
+  Forcefields
+
+
+Mob Sensor (Output redstone signal when mob is near)
+Players Drop Heads
