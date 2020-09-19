@@ -1,0 +1,5 @@
+features:
+  alldisabled: "All plugin features are currently disabled! Will do nothing!"
+config:
+  loaded: "Loaded configuration file version %version%!"
+  unsupported: "Your configuration version is not supported! (Required: %version%) | Please see: http://www.bukkit.org/this/that"

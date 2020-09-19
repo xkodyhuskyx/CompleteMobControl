@@ -29,11 +29,11 @@ import org.bukkit.entity.Player;
  *
  * @author xkodyhuskyx
  */
-public class MobWardCommand implements CommandExecutor {
+public class CommandMobWard implements CommandExecutor {
     
     private final CompleteMobControl plugin;
     
-    public MobWardCommand(CompleteMobControl plugin) {
+    public CommandMobWard(CompleteMobControl plugin) {
         this.plugin = plugin;
     }
     

@@ -16,17 +16,16 @@
  */
 package com.kodyhusky.cmcontrol;
 
-import com.kodyhusky.cmcontrol.commands.MobWardCommand;
+import com.kodyhusky.cmcontrol.commands.CommandMobWard;
 import com.kodyhusky.cmcontrol.listeners.EntitySpawnListener;
 import com.kodyhusky.cmcontrol.managers.MobWardManager;
-import com.kodyhusky.cmcontrol.managers.ConfigManager;
-import com.kodyhusky.cmcontrol.managers.LanguageManager;
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
+import com.kodyhusky.cmcontrol.util.L10NManager;
+import com.kodyhusky.cmcontrol.util.ConfigManager;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.List;
+import java.util.logging.Level;
 
 /**
  * The main starting point and control for all plugin functions.
@@ -37,29 +36,42 @@ public class CompleteMobControl extends JavaPlugin {
 
     private ConfigManager config;
     private MobWardManager wards;
-    private LanguageManager language;
 
     @Override
     public void onEnable() {
-        logToConsole(Level.INFO, "Starting CompleteMobControl Initialization!", false);
-        FileConfiguration worldconfig = new YamlConfiguration();
+        if (L10NManager.load()) {
+
+        }
+
+
+        /* Worlds?
+        FileConfiguration world5config = new YamlConfiguration();
         getServer().getWorlds().forEach(world -> {
             worldconfig.set(world.getUID().toString(), world.getName());
         });
         try {
             worldconfig.save(new File(getDataFolder(), "worlduuids.yml"));
         } catch (IOException ex) {}
-        config = new ConfigManager(this);
-        language = new LanguageManager(this);
-        
-        config.load();
-        language.load();
+         */
+
+        List<String> features = ConfigManager.getConfig().getStringList("features");
+        if (!(features.isEmpty())) {
+            if (features.contains("MOBWARDS")) {
+
+            }
+
+        } else {
+            getLogger().warning(L10NManager.getString("features.alldisabled", false));
+        }
+
+
         
         if (config.isFeatureEnabled("mobwards")) {
             wards = new MobWardManager(this);
             wards.load();
             getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
-            this.getCommand("mobward").setExecutor(new MobWardCommand(this));
+            PluginCommand mwcmd = getCommand("mobward");
+            if (mwcmd != null) {mwcmd.setExecutor(new CommandMobWard(this));}
         }
         logToConsole(Level.INFO, "CompleteMobControl Loaded Sucessfully!", false);
     }
@@ -91,41 +103,13 @@ public class CompleteMobControl extends JavaPlugin {
         return wards;
     }
 
-    /**
-     * Logs a message to the server console.
-     * <br><br><b>Accepted Level Types:</b>
-     * <br> SEVERE = Error Logging
-     * <br> WARING = Warning Logging
-     * <br> INFO = General Logging
-     * <br> CONFIG = Initialization Logging
-     * <br> ALL = Debug Logging
-     *
-     * @param level Log Level
-     * @param message message to log
-     * @param disable disable plugin
-     */
-    public void logToConsole(Level level, String message, Boolean disable) {
-        switch (level.intValue()) {
-            case 1000:
-                getLogger().log(Level.SEVERE, "ERROR: {0}", message);
-                break;
-            case 900:
-                getLogger().log(Level.WARNING, "WARN: {0}", message);
-                break;
-            case 700:
-                getLogger().log(Level.WARNING, "INIT: {0}", message);
-                break;
-            case Integer.MIN_VALUE:
-                if (config.debugEnabled()) {
-                    getLogger().log(Level.INFO, "DEBUG: {0}", message);
-                }
-                break;
-            default:
-                getLogger().info(message);
-        }
-        if (disable) {
-            getServer().getPluginManager().disablePlugin(this);
-        }
-    }
 
+    /**
+     * Get the currently supported plugin configuration version.
+     *
+     * @return int version
+     */
+    public int getSupportedConfigVersion() {
+        return 1;
+    }
 }

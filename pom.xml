@@ -15,6 +15,18 @@
       <scope>provided</scope>
       <optional>false</optional>
     </dependency>
+    <dependency>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>spigot-api</artifactId>
+      <version>[1.16.1-R0.1-SNAPSHOT]</version>
+      <scope>provided</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations-java5</artifactId>
+      <version>19.0.0</version>
+    </dependency>
   </dependencies>
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
