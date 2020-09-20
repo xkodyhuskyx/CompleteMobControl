@@ -57,41 +57,19 @@ public class CompleteMobControl extends JavaPlugin {
         List<String> features = ConfigManager.getConfig().getStringList("features");
         if (!(features.isEmpty())) {
             if (features.contains("MOBWARDS")) {
-
+                // Needs Redone
+                wards = new MobWardManager(this);
+                wards.load();
+                getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
+                PluginCommand mwcmd = getCommand("mobward");
+                if (mwcmd != null) mwcmd.setExecutor(new CommandMobWard(this));
+                // ----------
             }
 
         } else {
             getLogger().warning(L10NManager.getString("features.alldisabled", false));
         }
-
-
-        
-        if (config.isFeatureEnabled("mobwards")) {
-            wards = new MobWardManager(this);
-            wards.load();
-            getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
-            PluginCommand mwcmd = getCommand("mobward");
-            if (mwcmd != null) {mwcmd.setExecutor(new CommandMobWard(this));}
-        }
-        logToConsole(Level.INFO, "CompleteMobControl Loaded Sucessfully!", false);
-    }
-
-    /**
-     * Returns the loaded ConfigManager class.
-     *
-     * @return ConfigManager
-     */
-    public ConfigManager getPluginConfig() {
-        return config;
-    }
-    
-    /**
-     * Returns the loaded LanguageManager class.
-     *
-     * @return LanguageManager
-     */
-    public LanguageManager getLanguage() {
-        return language;
+        getLogger().warning(L10NManager.getString("plugin.loadsuccessful", false));
     }
 
     /**

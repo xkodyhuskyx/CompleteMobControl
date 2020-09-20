@@ -52,31 +52,31 @@ public class ConfigManager {
     public void load() {
         File configfile = new File(plugin.getDataFolder(), "config.yml");
         if (!configfile.exists()) {
-            plugin.logToConsole(Level.CONFIG, "Creating Default Configuration File (config.yml).", false);
+            //plugin.logToConsole(Level.CONFIG, "Creating Default Configuration File (config.yml).", false);
             plugin.saveDefaultConfig();
         }
         config = plugin.getConfig();
         if (config == null) {
-            plugin.logToConsole(Level.SEVERE, "Unable to Read Configuration File (config.yml)! Disabling Plugin!", true);
+            //plugin.logToConsole(Level.SEVERE, "Unable to Read Configuration File (config.yml)! Disabling Plugin!", true);
             return;
         }
         File egroupfile = new File(plugin.getDataFolder(), "entity-groups.yml");
         FileConfiguration egroupconfig = new YamlConfiguration();
         if (!egroupfile.exists()) {
-            plugin.logToConsole(Level.CONFIG, "Creating Default Entity Groups File (entity_groups.yml).", false);
+            //plugin.logToConsole(Level.CONFIG, "Creating Default Entity Groups File (entity_groups.yml).", false);
             plugin.saveResource("entity-groups.yml", false);
         }
         try {
             egroupconfig.load(egroupfile);
         } catch (IOException | InvalidConfigurationException ex) {
-            plugin.logToConsole(Level.SEVERE, "Unable To Read Entity Groups File (entity_groups.yml)! Disabling Plugin!", false);
-            plugin.logToConsole(Level.SEVERE, "ISSUE: " + ex.getLocalizedMessage(), true);
+            //plugin.logToConsole(Level.SEVERE, "Unable To Read Entity Groups File (entity_groups.yml)! Disabling Plugin!", false);
+            //plugin.logToConsole(Level.SEVERE, "ISSUE: " + ex.getLocalizedMessage(), true);
             return;
         }
         if (!egroupconfig.getKeys(false).isEmpty()) {
             egroupconfig.getKeys(false).forEach(group -> {
                 if (group.contains(" ") || group.contains("-")) {
-                    plugin.logToConsole(Level.WARNING, "Group Names May Not Contain Spaces Or Dashes! Found Group Name (" + group.toUpperCase() + ")! Skipping...", false);
+                    //plugin.logToConsole(Level.WARNING, "Group Names May Not Contain Spaces Or Dashes! Found Group Name (" + group.toUpperCase() + ")! Skipping...", false);
                 } else {
                     List<String> entities = new ArrayList<>();
                     if (!egroupconfig.getStringList(group).isEmpty()) {
@@ -85,17 +85,17 @@ public class ConfigManager {
                                 EntityType etype = EntityType.valueOf(entity.toUpperCase());
                                 entities.add(entity.toUpperCase());
                             } catch (IllegalArgumentException | NullPointerException e) {
-                                plugin.logToConsole(Level.WARNING, "Invalid Entity Type (" + entity.toUpperCase() + ") Found In Group (" + group.toUpperCase() + "! Skipping...", false);
+                                //plugin.logToConsole(Level.WARNING, "Invalid Entity Type (" + entity.toUpperCase() + ") Found In Group (" + group.toUpperCase() + "! Skipping...", false);
                             }
                         });
                     } else {
-                        plugin.logToConsole(Level.WARNING, "Entity Group (" + group.toUpperCase() + ") Is Empty! Possible Error?", false);
+                        //plugin.logToConsole(Level.WARNING, "Entity Group (" + group.toUpperCase() + ") Is Empty! Possible Error?", false);
                     }
                     entitygroups.put(group.toUpperCase(), entities);
                 }
             });
         } else {
-            plugin.logToConsole(Level.WARNING, "Entity Groups File (entity_groups.yml) Is Empty! Possible Error?", false);
+            //plugin.logToConsole(Level.WARNING, "Entity Groups File (entity_groups.yml) Is Empty! Possible Error?", false);
         }
     }
 
@@ -165,7 +165,7 @@ public class ConfigManager {
                     return 0;
                 }
             } else {
-                plugin.logToConsole(Level.WARNING, "MobWard Radius Type Is Invalid! Defaulting To SPHERE...", false);
+                //plugin.logToConsole(Level.WARNING, "MobWard Radius Type Is Invalid! Defaulting To SPHERE...", false);
             }
         }
         return 1;

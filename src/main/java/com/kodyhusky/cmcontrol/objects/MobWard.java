@@ -36,47 +36,35 @@ import org.bukkit.Material;
 @SuppressWarnings({"unchecked", "rawtypes", "ReturnOfCollectionOrArrayField"})
 public class MobWard {
 
-    private final UUID uuid;
-    private boolean active;
-    private final Material material;
-    private final Location location;
-    private Location redstone;
-    private Pair<UUID, String> owner;
-    private final HashMap<UUID, Pair<String, List<String>>> managers;
-    private int checklevel;
-    private int mode;
-    private final List<String> entities;
 
-    /**
-     * Used to create a MobWard object loaded from the plugin configuration
-     * files.
-     * <br><br>Note: The UUID, Material, and Location cannot be changed after
-     * initialization.
-     *
-     * @param uuid Unique Identifier
-     * @param active is active
-     * @param material .
-     * @param location .
-     * @param redstone .
-     * @param owner Owner
-     * @param managers List of managers UUID's
-     * @param checklevel .
-     * @param mode blacklist (0) or whitelist (1)
-     * @param entities Entities to check
-     */
-    public MobWard(UUID uuid, Boolean active, Material material, Location location,
-            Location redstone, Pair<UUID, String> owner, HashMap<UUID, Pair<String, List<String>>> managers,
-            int checklevel, int mode, List<String> entities) {
-        this.uuid = uuid;
+    private String id;
+    private boolean active;
+    private int radius;
+    private Material material;
+    private Location location;
+    private Location redstone;
+    private String owner;
+    private HashMap<String, List<String>> users;
+    private int modifier;
+    private int mode;
+    private List<String> entities;
+
+    public MobWard(String id, boolean active, int radius, Material material, Location location, Location redstone, String owner, HashMap<String, List<String>> users, int modifier, int mode, List<String> entities) {
+        this.id = id;
         this.active = active;
+        this.radius = radius;
         this.material = material;
         this.location = location;
         this.redstone = redstone;
         this.owner = owner;
-        this.managers = managers;
-        this.checklevel = checklevel;
+        this.users = users;
+        this.modifier = modifier;
         this.mode = mode;
         this.entities = entities;
+    }
+
+    public MobWard(String name) {
+        super(name + "|" + UUID.randomUUID().toString(),)
     }
 
     /**
