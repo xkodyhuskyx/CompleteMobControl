@@ -1,7 +1,11 @@
+mobward:
+  invradiustype: "The radius type you have specified in invalid! Defaulting to SPHERE!"
+  invalidconfig: "An error occurred loading the MobWard types from the plugin configuration file!"
+  invalidtype: "Found invalid MobWard type (%type%) in the plugin configuration file!"
 features:
-  alldisabled: "All plugin features are currently disabled! Will do nothing!"
+  alldisabled: "All plugin features are currently disabled! Plugin will do nothing!"
 config:
   loaded: "Loaded configuration file version %version%!"
   unsupported: "Your configuration version is not supported! (Required: %version%) | Please see: http://www.bukkit.org/this/that"
 plugin:
-  loadsuccessful: "Plugin successfully enabled!"
+  loadsuccessful: "Plugin successfully loaded and enabled!"

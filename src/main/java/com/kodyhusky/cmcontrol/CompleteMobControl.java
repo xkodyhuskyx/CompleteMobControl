@@ -19,13 +19,10 @@ package com.kodyhusky.cmcontrol;
 import com.kodyhusky.cmcontrol.commands.CommandMobWard;
 import com.kodyhusky.cmcontrol.listeners.EntitySpawnListener;
 import com.kodyhusky.cmcontrol.managers.MobWardManager;
-import com.kodyhusky.cmcontrol.util.L10NManager;
-import com.kodyhusky.cmcontrol.util.ConfigManager;
+import com.kodyhusky.cmcontrol.util.L10N;
+import com.kodyhusky.cmcontrol.util.ConfigHandler;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.List;
-import java.util.logging.Level;
 
 /**
  * The main starting point and control for all plugin functions.
@@ -34,53 +31,26 @@ import java.util.logging.Level;
  */
 public class CompleteMobControl extends JavaPlugin {
 
-    private ConfigManager config;
-    private MobWardManager wards;
+    MobWardManager wards = null;
 
     @Override
     public void onEnable() {
-        if (L10NManager.load()) {
-
-        }
-
-
-        /* Worlds?
-        FileConfiguration world5config = new YamlConfiguration();
-        getServer().getWorlds().forEach(world -> {
-            worldconfig.set(world.getUID().toString(), world.getName());
-        });
-        try {
-            worldconfig.save(new File(getDataFolder(), "worlduuids.yml"));
-        } catch (IOException ex) {}
-         */
-
-        List<String> features = ConfigManager.getConfig().getStringList("features");
-        if (!(features.isEmpty())) {
-            if (features.contains("MOBWARDS")) {
-                // Needs Redone
+        if (L10N.load()) {
+            int fc = 0;
+            if (ConfigHandler.getConfig().getBoolean("features.mobward")) {
                 wards = new MobWardManager(this);
                 wards.load();
                 getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
                 PluginCommand mwcmd = getCommand("mobward");
                 if (mwcmd != null) mwcmd.setExecutor(new CommandMobWard(this));
-                // ----------
+                fc++;
             }
-
-        } else {
-            getLogger().warning(L10NManager.getString("features.alldisabled", false));
+            if (fc == 0) {
+                getLogger().warning(L10N.getString("features.alldisabled", false));
+            }
+            getLogger().warning(L10N.getString("plugin.loadsuccessful", false));
         }
-        getLogger().warning(L10NManager.getString("plugin.loadsuccessful", false));
     }
-
-    /**
-     * Returns the loaded MobWardManager class.
-     *
-     * @return MobWardManager
-     */
-    public MobWardManager getWardManager() {
-        return wards;
-    }
-
 
     /**
      * Get the currently supported plugin configuration version.

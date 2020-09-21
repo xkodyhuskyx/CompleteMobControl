@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  * @author Jeffery Hancock
  * @version 1.0.0
  */
-public class L10NManager {
+public class L10N {
 
     private static YamlConfiguration langCurrent = null;
     private static YamlConfiguration langDefault = null;
@@ -34,7 +34,7 @@ public class L10NManager {
         logger = CompleteMobControl.getPlugin(CompleteMobControl.class).getLogger();
         try {
             Enumeration<JarEntry> jarFiles = (new JarFile(new File(
-                    L10NManager.class.getProtectionDomain().getCodeSource().getLocation().toURI()))).entries();
+                    L10N.class.getProtectionDomain().getCodeSource().getLocation().toURI()))).entries();
             while (jarFiles.hasMoreElements()) {
                 String candidate = jarFiles.nextElement().getName();
                 if (candidate.startsWith("lang/")) {
@@ -47,7 +47,7 @@ public class L10NManager {
         }
     }
 
-    private L10NManager() {
+    private L10N() {
     }
 
     /**
@@ -102,7 +102,7 @@ public class L10NManager {
     @Nullable
     private static YamlConfiguration loadLanguage(@NotNull String langCode) {
 
-        InputStream is = L10NManager.class.getResourceAsStream("/lang/" + langCode + ".yml");
+        InputStream is = L10N.class.getResourceAsStream("/lang/" + langCode + ".yml");
         File langFile = new File(CompleteMobControl.getPlugin(CompleteMobControl.class)
                 .getDataFolder(), "lang" + File.separator + langCode + ".yml");
 

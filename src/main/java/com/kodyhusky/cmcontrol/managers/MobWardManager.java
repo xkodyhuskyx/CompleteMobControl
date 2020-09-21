@@ -18,7 +18,7 @@ package com.kodyhusky.cmcontrol.managers;
 
 import com.kodyhusky.cmcontrol.CompleteMobControl;
 import com.kodyhusky.cmcontrol.objects.MobWard;
-import com.kodyhusky.cmcontrol.util.Pair;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,6 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
+
+import com.kodyhusky.cmcontrol.objects.MobWardType;
+import com.kodyhusky.cmcontrol.util.ConfigHandler;
+import com.kodyhusky.cmcontrol.util.L10N;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -45,19 +49,94 @@ public class MobWardManager {
 
     private final CompleteMobControl plugin;
 
+    private HashMap<Location, UUID> redstones = new HashMap<>();
+    private HashMap<Location, UUID> locations = new HashMap<>();
+    private HashMap<UUID, MobWard> names = new HashMap<>();
+    private HashMap<String, MobWardType> types = new HashMap<>();
+    private int radiusType = 0;
+
+    public MobWardManager(CompleteMobControl plugin) {
+        this.plugin = plugin;
+    }
+
+
+    public boolean load() {
+        return reload();
+    }
+
+    public boolean reload() {
+        // Get Radius Type From Config
+        String rType = ConfigHandler.getString("mobward.radius_type", "SPHERE");
+        radiusType = rType.equalsIgnoreCase("SPHERE") ? 0 : 1;
+        if (!rType.matches("^(?i)(sphere|cube)$"))
+            plugin.getLogger().warning(L10N.getString("mobward.invradiustype", false));
+        if (loadMobWardTypes()) {
+
+        }
+        return false;
+    }
+
+
+    public boolean loadMobWardTypes() {
+        ConfigurationSection wardconfig = plugin.getConfig().getConfigurationSection("mobward.types");
+        if (!(wardconfig == null)) {
+            if (!wardconfig.getKeys(false).isEmpty()) {
+                wardconfig.getKeys(false).forEach(type -> {
+                    if (type.matches("^[A-Za-z0-9]*$")) {
+                        String mat = wardconfig.getString(type + ".material", "is-invalid");
+                        Material material = Material.getMaterial(mat != null ? mat : "is-invalid");
+                        int radius = wardconfig.getInt(type + ".radius", 1000000000);
+                        if (material != null && radius != 1000000000) {
+                            types.put(type.toLowerCase(), new MobWardType(type, material, radius));
+                        } else {
+                            plugin.getLogger().warning(L10N.getString("mobward.invalidconfig", false));
+                        }
+                    } else {
+                        plugin.getLogger().warning(L10N.getString("mobward.invalidname","type:" + type, false));
+                    }
+                });
+                if (types.isEmpty()) {
+                    plugin.getLogger().warning(L10N.getString("mobward.invalidconfig", false));
+                    plugin.getServer().getPluginManager().disablePlugin(plugin);
+                    return false;
+                }
+                return true;
+            }
+        }
+        plugin.getLogger().warning(L10N.getString("mobward.invalidconfig", false));
+        plugin.getServer().getPluginManager().disablePlugin(plugin);
+        return false;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
+    private final CompleteMobControl plugin;
+
     private final HashMap<UUID, MobWard> allwards = new HashMap<>();
     private final HashMap<UUID, Pair<Location, Integer>> activewards = new HashMap<>();
     private final HashMap<Material, Pair<String, Integer>> materials = new HashMap<>();
     private final HashMap<Location, UUID> redstones = new HashMap<>();
     private int radiustype;
 
-    public MobWardManager(CompleteMobControl plugin) {
-        this.plugin = plugin;
-    }
 
-    /**
-     * Loads all MobWard Configuration files and data.
-     */
     public void load() {
         radiustype = plugin.getPluginConfig().getMobWardRadiusType();
         ConfigurationSection wardconfig = plugin.getPluginConfig().getMobWardTypesConfig();
@@ -86,6 +165,11 @@ public class MobWardManager {
             materials.put(Material.DIAMOND_BLOCK, new Pair<>("MEDIUM", 75));
             materials.put(Material.EMERALD_BLOCK, new Pair<>("LARGE", 100));
         }
+
+
+        ========================================  GOT HERE WITH RELOAD FUNCTION  ===============================
+
+
         File[] files = (new File(plugin.getDataFolder(), "mobwards")).listFiles((File dir, String name) -> name.toLowerCase().endsWith(".yml"));
         for (File file : files) {
             FileConfiguration warddata = new YamlConfiguration();
@@ -110,14 +194,7 @@ public class MobWardManager {
         plugin.logToConsole(Level.WARNING, "Sucessfully Loaded (" + allwards.size() + ") MobWards!", false);
     }
 
-    /**
-     * Returns a MobWard object based on the given configuration data.
-     *
-     * @param config MobWard YAML data
-     * @param filename Configuration file name
-     * @return MobWard - MobWard or null if error occurs
-     */
-    @SuppressWarnings("null")
+
     public MobWard loadMobWard(FileConfiguration config, String filename) {
         String uuidregex = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$";
         String sc = config.getString("uuid", "is-invalid");
@@ -193,12 +270,6 @@ public class MobWardManager {
         return new MobWard(uuid, active, material, location, redstone, owner, managers, checkint, modeint, entities);
     }
 
-    /**
-     * Returns a list of all MobWards owned by the given player.
-     *
-     * @param player MobWard owner
-     * @return list of all MobWards owned by the player
-     */
     public List<MobWard> getAllMobWards(Player player) {
         List<MobWard> wards = new ArrayList<>();
         if (!allwards.isEmpty()) {
@@ -211,12 +282,7 @@ public class MobWardManager {
         return wards;
     }
 
-    /**
-     * Sets the active status of a MobWard.
-     *
-     * @param uuid MobWard UUID
-     * @param active is active
-     */
+
     public void setWardActive(UUID uuid, Boolean active) {
         MobWard ward = allwards.get(uuid);
         ward.setActive(active);
@@ -232,14 +298,7 @@ public class MobWardManager {
         }
     }
 
-    /**
-     * Checks if a Entity is within the radius of a MobWard.
-     *
-     * @param entity Entity location
-     * @param ward Ward Location
-     * @param radius Radius
-     * @return Boolean
-     */
+
     private boolean isInRadius(Location entity, Location ward, Integer radius) {
         if (radiustype == 0) {
             double x1 = entity.getX();
@@ -253,12 +312,7 @@ public class MobWardManager {
         return (entity.distanceSquared(ward) <= radius * radius);
     }
 
-    /**
-     * Checks if an entity spawn event should be cancelled.
-     *
-     * @param entity Spawning entity
-     * @return Boolean
-     */
+
     public boolean isSpawnBlocked(Entity entity) {
         for (Map.Entry<UUID, Pair<Location, Integer>> entry : activewards.entrySet()) {
             if (isInRadius(entity.getLocation(), entry.getValue().getKey(), entry.getValue().getValue())) {
@@ -278,24 +332,12 @@ public class MobWardManager {
         return false;
     }
 
-    /**
-     * Gets the radius value for the material.
-     *
-     * @param material Material
-     * @return Integer
-     */
+
     public int getMaterialRadius(Material material) {
         return materials.get(material).getValue();
     }
 
-    /**
-     * Checks the given entity list for the given entity name. This does check
-     * groups and takes into account negated items.
-     *
-     * @param list MobWard entity list
-     * @param name Spawning entity name
-     * @return Boolean is listed
-     */
+
     public boolean matchInEntityList(List<String> list, String name) {
         List<String> allentities = new ArrayList<>();
         List<String> toremove = new ArrayList<>();
@@ -337,6 +379,7 @@ public class MobWardManager {
         }
         return false;
     }
+    */
 }
 
 /*

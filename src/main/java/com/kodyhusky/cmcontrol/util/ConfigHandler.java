@@ -3,6 +3,7 @@ package com.kodyhusky.cmcontrol.util;
 import com.kodyhusky.cmcontrol.CompleteMobControl;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
  * @author Jeffery Hancock
  * @version 1.0.0
  */
-public class ConfigManager {
+public class ConfigHandler {
 
     private static final FileConfiguration configCurrent = new YamlConfiguration();
     private static final Logger logger;
@@ -26,11 +27,11 @@ public class ConfigManager {
         logger = CompleteMobControl.getPlugin(CompleteMobControl.class).getLogger();
         if (!(new File(CompleteMobControl.getPlugin(CompleteMobControl.class).getDataFolder(), "config.yml")).exists()) {
             CompleteMobControl.getPlugin(CompleteMobControl.class).saveDefaultConfig();
-            logger.info(L10NManager.getString("config.createnew", false));
+            logger.info(L10N.getString("config.createnew", false));
         }
     }
 
-    private ConfigManager() {
+    private ConfigHandler() {
     }
 
     /**
@@ -50,7 +51,7 @@ public class ConfigManager {
     public static boolean reload() {
         FileConfiguration configDefaults = new YamlConfiguration();
         FileConfiguration configCurrents = new YamlConfiguration();
-        InputStream is = ConfigManager.class.getResourceAsStream("/config.yml");
+        InputStream is = ConfigHandler.class.getResourceAsStream("/config.yml");
         if (is != null) {
             InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
             configDefaults = YamlConfiguration.loadConfiguration(isr);
@@ -64,12 +65,12 @@ public class ConfigManager {
             if (configCurrents.contains("version")) {
                 if (configCurrents.getInt("version") != CompleteMobControl.getPlugin(CompleteMobControl.class)
                         .getSupportedConfigVersion()) {
-                    logger.warning(L10NManager.getString("config.unsupported",
+                    logger.warning(L10N.getString("config.unsupported",
                             "version:" + CompleteMobControl.getPlugin(CompleteMobControl.class).getSupportedConfigVersion(), false));
                 }
                 configCurrent.addDefaults(configDefaults);
                 configCurrent.addDefaults(configCurrents);
-                logger.info(L10NManager.getString("config.loaded", "version:" + configCurrents.getInt("version"), false));
+                logger.info(L10N.getString("config.loaded", "version:" + configCurrents.getInt("version"), false));
                 return true;
             }
         }
@@ -83,5 +84,19 @@ public class ConfigManager {
      */
     public static FileConfiguration getConfig() {
         return configCurrent;
+    }
+
+    /**
+     * Gets a string value from the plugin configuration file.
+     *
+     * @param path path to string
+     * @param def default value
+     *
+     * @return string value or default
+     */
+    @NotNull
+    public static String getString(String path, String def) {
+        String str = configCurrent.getString(path);
+        return (str == null) ? def : str;
     }
 }
